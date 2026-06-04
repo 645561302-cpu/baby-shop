@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HahaPu · 精选好物</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #ff6b9d;
@@ -1222,7 +1221,7 @@ const PRODUCTS = [
 
 // ===================== 配置 =====================
 const CONFIG = {
-  // Supabase 云数据库配置（订单实时同步）
+  // Supabase 云数据库配置（订单实时同步，使用 REST API，无需 SDK）
   SUPABASE_URL: "https://ipcagqrvrrugcksfrpge.supabase.co",
   SUPABASE_KEY: "sb_publishable_vzzx53CSZnZeGkrJfiUYlw_0xmi32bO",
   // 腾讯文档订单表格 spreadsheet token（填写后订单会自动写入）
@@ -1232,7 +1231,7 @@ const CONFIG = {
 };
 
 // Supabase 客户端初始化
-const supabase = window.supabase ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY) : null;
+// 使用 fetch 直接调用 Supabase REST API，无需 SDK
 
 // ===================== 类别配置 =====================
 const CATEGORIES = [
@@ -1598,12 +1597,19 @@ async function submitOrder() {
     total,
   };
 
-  // 推送到 Supabase 云数据库
+  // 推送到 Supabase 云数据库（直接 fetch，无需 SDK）
   let cloudOk = false;
-  if (supabase) {
-    try {
-      const itemsJson = JSON.stringify(orderData.items);
-      const { error } = await supabase.from("orders").insert({
+  try {
+    const itemsJson = JSON.stringify(orderData.items);
+    const resp = await fetch(CONFIG.SUPABASE_URL + "/rest/v1/orders", {
+      method: "POST",
+      headers: {
+        "apikey": CONFIG.SUPABASE_KEY,
+        "Authorization": "Bearer " + CONFIG.SUPABASE_KEY,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify([{
         order_no: orderNo,
         customer_name: name,
         phone: phone,
@@ -1612,11 +1618,11 @@ async function submitOrder() {
         total_amount: total,
         remark: note,
         status: "待处理"
-      });
-      if (error) { console.warn("Supabase 提交失败:", error.message); }
-      else { cloudOk = true; }
-    } catch(e) { console.warn("Supabase 提交异常:", e); }
-  }
+      }])
+    });
+    if (resp.ok) { cloudOk = true; }
+    else { console.warn("Supabase 提交失败:", await resp.text()); }
+  } catch(e) { console.warn("Supabase 提交异常:", e); }
 
   // 无论云端是否成功，都本地存储订单（兜底）
   saveOrderLocally(orderData);
