@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>宝贝优选代购 · 精选好物</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #ff6b9d;
@@ -1221,12 +1222,17 @@ const PRODUCTS = [
 
 // ===================== 配置 =====================
 const CONFIG = {
+  // Supabase 云数据库配置（订单实时同步）
+  SUPABASE_URL: "https://ipcagqrvrrugcksfrpge.supabase.co",
+  SUPABASE_KEY: "sb_publishable_vzzx53CSZnZeGkrJfiUYlw_0xmi32bO",
   // 腾讯文档订单表格 spreadsheet token（填写后订单会自动写入）
-  // 获取方式：打开腾讯文档表格，URL 中 /spreadsheets/ 后面的字符串
   TENCENT_DOC_TOKEN: "",
   // 商家微信号或联系方式（显示在成功页面）
   CONTACT_WECHAT: "",
 };
+
+// Supabase 客户端初始化
+const supabase = window.supabase ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY) : null;
 
 // ===================== 类别配置 =====================
 const CATEGORIES = [
@@ -1592,15 +1598,27 @@ async function submitOrder() {
     total,
   };
 
-  // 尝试推送到腾讯文档
-  let docPushed = false;
-  if (CONFIG.TENCENT_DOC_TOKEN) {
+  // 推送到 Supabase 云数据库
+  let cloudOk = false;
+  if (supabase) {
     try {
-      docPushed = await pushToTencentDoc(orderData);
-    } catch(e) { console.warn("腾讯文档推送失败:", e); }
+      const itemsJson = JSON.stringify(orderData.items);
+      const { error } = await supabase.from("orders").insert({
+        order_no: orderNo,
+        customer_name: name,
+        phone: phone,
+        address: address,
+        items: itemsJson,
+        total_amount: total,
+        remark: note,
+        status: "待处理"
+      });
+      if (error) { console.warn("Supabase 提交失败:", error.message); }
+      else { cloudOk = true; }
+    } catch(e) { console.warn("Supabase 提交异常:", e); }
   }
 
-  // 无论推送是否成功，都本地存储订单
+  // 无论云端是否成功，都本地存储订单（兜底）
   saveOrderLocally(orderData);
 
   btn.disabled = false;
@@ -1610,6 +1628,13 @@ async function submitOrder() {
   cart = {};
   updateCartBadge();
   renderMain();
+
+  // 根据云端是否成功显示不同提示
+  if (cloudOk) {
+    showToast("✅ 订单已提交成功！");
+  } else {
+    showToast("⚠️ 订单已记录，网络同步中...");
+  }
 
   document.getElementById("successOverlay").classList.add("show");
   document.body.style.overflow = "hidden";

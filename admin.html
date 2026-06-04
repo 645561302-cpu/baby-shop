@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>订单管理后台 · 宝贝优选</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #ff6b9d;
@@ -259,7 +260,7 @@
   <div class="header-actions">
     <button class="btn btn-outline" onclick="refreshOrders()">🔄 刷新</button>
     <button class="btn btn-success" onclick="exportCSV()">📥 导出CSV</button>
-    <button class="btn btn-primary" onclick="window.open('shop.html','_blank')">🛍️ 查看商城</button>
+    <button class="btn btn-primary" onclick="window.open('/','_blank')">🛍️ 查看商城</button>
   </div>
 </div>
 
@@ -274,11 +275,11 @@
 
   <!-- EXPORT / TENCENT DOC -->
   <div class="export-section">
-    <h3>📊 腾讯文档对接</h3>
+    <h3>☁️ 云端订单同步</h3>
     <div style="font-size:13px;color:var(--text-muted);flex:2;">
-      点击「同步到腾讯文档」可将所有本地订单导出到腾讯文档表格
+      订单通过 Supabase 云数据库实时同步，每 30 秒自动刷新
     </div>
-    <button class="btn btn-primary" onclick="syncToTencentDoc()">📤 同步到腾讯文档</button>
+    <button class="btn btn-success" onclick="exportCSV()">📥 导出CSV</button>
     <button class="btn btn-outline" style="color:#333;border-color:#ccc;" onclick="clearAllOrders()">🗑️ 清空本地记录</button>
   </div>
 
@@ -338,6 +339,11 @@
 </div>
 
 <script>
+// ===================== Supabase 配置 =====================
+const SUPABASE_URL = "https://ipcagqrvrrugcksfrpge.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vzzx53CSZnZeGkrJfiUYlw_0xmi32bO";
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
 // ===================== 状态映射 =====================
 const STATUS_MAP = {
   "待处理": "new",
@@ -347,15 +353,82 @@ const STATUS_MAP = {
 };
 const STATUS_LABELS = ["待处理","已确认","已发货","已完成"];
 
-// ===================== 加载订单 =====================
-function loadOrders() {
+// ===================== 云端订单加载 =====================
+let cloudOrders = [];
+let ordersLoaded = false;
+
+async function loadOrdersFromCloud() {
+  if (!supabase) return [];
   try {
-    return JSON.parse(localStorage.getItem("shop_orders") || "[]");
-  } catch(e) { return []; }
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.warn("Supabase 查询失败:", error.message);
+      return [];
+    }
+    // 转换为统一格式
+    return (data || []).map(row => {
+      let parsedItems = [];
+      try { parsedItems = typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []); } catch(e) {}
+      return {
+        orderNo: row.order_no,
+        orderTime: row.created_at ? new Date(row.created_at).toLocaleString("zh-CN") : "",
+        name: row.customer_name || "",
+        phone: row.phone || "",
+        address: row.address || "",
+        note: row.remark || "",
+        items: parsedItems,
+        total: Number(row.total_amount) || 0,
+        status: row.status || "待处理",
+        _cloudId: row.id
+      };
+    });
+  } catch(e) {
+    console.warn("云端加载异常:", e);
+    return [];
+  }
+}
+
+// 合并云端和本地订单（去重，以 orderNo 判断）
+function mergeOrders(cloudOrders, localOrders) {
+  const map = new Map();
+  // 先加载云端订单
+  cloudOrders.forEach(o => map.set(o.orderNo, o));
+  // 本地订单补充（不覆盖云端的）
+  localOrders.forEach(o => {
+    if (!map.has(o.orderNo)) map.set(o.orderNo, o);
+  });
+  return Array.from(map.values());
+}
+
+function loadOrders() {
+  // 返回合并后的订单
+  return mergeOrders(cloudOrders, loadLocalOrders());
+}
+
+function loadLocalOrders() {
+  try { return JSON.parse(localStorage.getItem("shop_orders") || "[]"); } catch(e) { return []; }
 }
 
 function saveOrders(orders) {
   localStorage.setItem("shop_orders", JSON.stringify(orders));
+}
+
+// ===================== 云端更新订单状态 =====================
+async function updateOrderStatusCloud(orderNo, newStatus) {
+  if (!supabase) return false;
+  try {
+    const order = loadOrders().find(o => o.orderNo === orderNo);
+    if (!order || !order._cloudId) return false;
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", order._cloudId);
+    if (error) { console.warn("状态更新失败:", error.message); return false; }
+    return true;
+  } catch(e) { console.warn("状态更新异常:", e); return false; }
 }
 
 // ===================== STATS =====================
@@ -434,22 +507,25 @@ function renderTable() {
 }
 
 // ===================== UPDATE STATUS =====================
-function updateStatus(orderNo) {
+async function updateStatus(orderNo) {
   const orders = loadOrders();
   const order = orders.find(o=>o.orderNo===orderNo);
   if (!order) return;
 
   const current = order.status || "待处理";
   const currentIdx = STATUS_LABELS.indexOf(current);
-  const options = STATUS_LABELS.map((s,i)=>`${i===currentIdx?'✓ ':''}${s}`).join('\n');
-
   const choice = prompt(`当前状态: ${current}\n\n选择新状态（输入数字）:\n1. 待处理\n2. 已确认\n3. 已发货\n4. 已完成`, currentIdx+1);
   if (!choice) return;
 
   const idx = parseInt(choice) - 1;
   if (idx >= 0 && idx < STATUS_LABELS.length) {
-    order.status = STATUS_LABELS[idx];
-    saveOrders(orders);
+    const newStatus = STATUS_LABELS[idx];
+    // 更新云端
+    await updateOrderStatusCloud(orderNo, newStatus);
+    // 更新本地缓存
+    order.status = newStatus;
+    cloudOrders = cloudOrders.map(o => o.orderNo === orderNo ? {...o, status: newStatus} : o);
+    saveOrders(loadOrders()); // 保存合并后的到本地
     renderStats();
     renderTable();
   }
@@ -578,15 +654,6 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-// ===================== 同步到腾讯文档 =====================
-function syncToTencentDoc() {
-  const orders = loadOrders();
-  if (orders.length === 0) { alert("暂无订单数据"); return; }
-
-  // 腾讯文档同步说明
-  alert(`📊 腾讯文档同步说明\n\n当前有 ${orders.length} 条订单记录。\n\n对接方式：\n1. 点击"导出CSV"下载订单数据\n2. 在腾讯文档中新建表格\n3. 点击"导入" → 上传CSV文件\n\n💡 如需自动推送，需要配置后端接口或使用腾讯文档 API，\n   请联系技术人员协助配置。`);
-}
-
 // ===================== CLEAR ALL =====================
 function clearAllOrders() {
   if (!confirm("⚠️ 确定要清空所有本地订单记录吗？此操作不可恢复！")) return;
@@ -603,17 +670,30 @@ function clearFilters() {
 }
 
 function refreshOrders() {
-  renderStats();
-  renderTable();
-  // 短暂提示
+  loadOrdersFromCloud().then(data => {
+    cloudOrders = data;
+    ordersLoaded = true;
+    renderStats();
+    renderTable();
+  });
   const btn = event.target;
-  btn.textContent = "✅ 已刷新";
-  setTimeout(()=>btn.textContent="🔄 刷新", 1500);
+  btn.textContent = "⏳ 加载中...";
+  setTimeout(()=>btn.textContent="🔄 刷新", 2000);
 }
 
-// INIT
-renderStats();
-renderTable();
+// INIT: 首次自动从云端加载
+(async function() {
+  cloudOrders = await loadOrdersFromCloud();
+  ordersLoaded = true;
+  renderStats();
+  renderTable();
+  // 每 30 秒自动刷新一次
+  setInterval(async () => {
+    cloudOrders = await loadOrdersFromCloud();
+    renderStats();
+    renderTable();
+  }, 30000);
+})();
 </script>
 </body>
 </html>
