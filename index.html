@@ -1363,7 +1363,7 @@ function renderProductCard(p) {
 
   return `<div class="product-card" onclick="openProduct(${p.id})">
     <div class="product-img-wrap">
-      <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" />
+      <img src="${encodeURI(p.image)}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" />
       <div class="product-img-placeholder" style="display:none;">${getCategoryEmoji(p.category)}</div>
     </div>
     <div class="product-info">
@@ -1430,7 +1430,7 @@ function openProduct(id) {
   }
   const img = document.getElementById("modalImg");
   const ph = document.getElementById("modalImgPlaceholder");
-  img.src = modalProduct.image;
+  img.src = encodeURI(modalProduct.image);
   img.style.display = "block";
   ph.style.display = "none";
   ph.textContent = getCategoryEmoji(modalProduct.category);
@@ -1495,7 +1495,7 @@ function renderCart() {
 
   itemsEl.innerHTML = items.map(item => `
     <div class="cart-item">
-      <img class="cart-item-img" src="${item.image}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <img class="cart-item-img" src="${encodeURI(item.image)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
       <div class="cart-item-img-placeholder" style="display:none;">${getCategoryEmoji(item.category)}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
