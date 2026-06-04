@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>订单管理后台 · 宝贝优选</title>
+  <style>
+    :root {
+      --primary: #ff6b9d;
+      --primary-light: #ffe4ef;
+      --accent: #4caf50;
+      --text: #333;
+      --text-muted: #888;
+      --bg: #f5f5f5;
+      --card: #fff;
+      --border: #e8e8e8;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, "PingFang SC", Arial, sans-serif; background: var(--bg); color: var(--text); }
+
+    .header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    .header h1 { font-size: 18px; font-weight: 700; }
+    .header p { font-size: 13px; opacity: 0.7; margin-top: 2px; }
+
+    .header-actions { display: flex; gap: 10px; }
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--accent); color: white; }
+    .btn-outline { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-danger { background: #f44336; color: white; }
+
+    .main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .stat-val { font-size: 28px; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    /* FILTERS */
+    .toolbar {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar input, .toolbar select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      color: var(--text);
+    }
+    .toolbar input:focus, .toolbar select:focus { border-color: var(--primary); }
+    .filter-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+
+    /* ORDER TABLE */
+    .orders-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .orders-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .orders-header h2 { font-size: 16px; font-weight: 700; }
+    .orders-count { font-size: 13px; color: var(--text-muted); }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #fafafa; }
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid #f5f5f5;
+      vertical-align: top;
+    }
+    tr:hover td { background: #fafafa; }
+
+    .order-no { font-weight: 700; color: var(--primary); font-size: 12px; }
+    .order-time { font-size: 12px; color: var(--text-muted); }
+    .buyer-name { font-weight: 600; }
+    .buyer-phone { font-size: 12px; color: var(--text-muted); }
+    .items-list { font-size: 12px; color: var(--text-muted); max-width: 280px; }
+    .items-list .item-line { margin-bottom: 2px; }
+    .total-price { font-size: 16px; font-weight: 800; color: var(--primary); }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-new { background: #fff3cd; color: #856404; }
+    .status-confirmed { background: #d1ecf1; color: #0c5460; }
+    .status-shipped { background: #d4edda; color: #155724; }
+    .status-done { background: #e2e3e5; color: #383d41; }
+
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ORDER DETAIL MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-head {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-head h3 { font-size: 18px; font-weight: 700; }
+    .modal-close-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #f5f5f5;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content { padding: 20px 24px; }
+    .info-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .info-label { color: var(--text-muted); font-weight: 600; min-width: 80px; }
+    .info-val { color: var(--text); }
+    .order-items-table { width: 100%; margin: 16px 0; border-collapse: collapse; }
+    .order-items-table th, .order-items-table td {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 13px;
+    }
+    .order-items-table thead { background: #f9f9f9; }
+    .order-items-table th { font-weight: 700; color: var(--text-muted); }
+    .order-items-table tr { border-bottom: 1px solid #f0f0f0; }
+    .total-section {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .total-section .label { font-size: 14px; font-weight: 600; }
+    .total-section .val { font-size: 22px; font-weight: 800; color: var(--primary); }
+    .modal-actions { display: flex; gap: 10px; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* EXPORT SECTION */
+    .export-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .export-section h3 { font-size: 14px; font-weight: 700; flex: 1; }
+
+    @media (max-width: 640px) {
+      .main { padding: 12px; }
+      .header { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📋 订单管理后台</h1>
+    <p>宝贝优选代购 · 商家专用</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="refreshOrders()">🔄 刷新</button>
+    <button class="btn btn-success" onclick="exportCSV()">📥 导出CSV</button>
+    <button class="btn btn-primary" onclick="window.open('shop.html','_blank')">🛍️ 查看商城</button>
+  </div>
+</div>
+
+<main class="main">
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-val" id="stat-total">0</div><div class="stat-label">总订单数</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-new">0</div><div class="stat-label">待处理</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-amount">¥0</div><div class="stat-label">总金额</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-today">0</div><div class="stat-label">今日订单</div></div>
+  </div>
+
+  <!-- EXPORT / TENCENT DOC -->
+  <div class="export-section">
+    <h3>📊 腾讯文档对接</h3>
+    <div style="font-size:13px;color:var(--text-muted);flex:2;">
+      点击「同步到腾讯文档」可将所有本地订单导出到腾讯文档表格
+    </div>
+    <button class="btn btn-primary" onclick="syncToTencentDoc()">📤 同步到腾讯文档</button>
+    <button class="btn btn-outline" style="color:#333;border-color:#ccc;" onclick="clearAllOrders()">🗑️ 清空本地记录</button>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <span class="filter-label">筛选：</span>
+    <input type="text" id="searchFilter" placeholder="搜索姓名/电话/商品..." oninput="renderTable()" />
+    <select id="statusFilter" onchange="renderTable()">
+      <option value="">全部状态</option>
+      <option value="待处理">待处理</option>
+      <option value="已确认">已确认</option>
+      <option value="已发货">已发货</option>
+      <option value="已完成">已完成</option>
+    </select>
+    <input type="date" id="dateFilter" onchange="renderTable()" />
+    <button class="btn btn-sm" style="background:#f0f0f0;color:#666;" onclick="clearFilters()">清除筛选</button>
+  </div>
+
+  <!-- ORDERS TABLE -->
+  <div class="orders-section">
+    <div class="orders-header">
+      <h2>📦 订单列表</h2>
+      <div class="orders-count" id="ordersCount">0 条记录</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>订单号 / 时间</th>
+            <th>客户信息</th>
+            <th>商品明细</th>
+            <th>合计</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">📭</div>
+        <div>暂无订单记录</div>
+        <div style="font-size:13px;margin-top:6px;">客户在商城下单后，订单会自动出现在这里</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>📋 订单详情</h3>
+      <button class="modal-close-btn" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="modal-content" id="detailContent"></div>
+  </div>
+</div>
+
+<script>
+// ===================== 状态映射 =====================
+const STATUS_MAP = {
+  "待处理": "new",
+  "已确认": "confirmed",
+  "已发货": "shipped",
+  "已完成": "done",
+};
+const STATUS_LABELS = ["待处理","已确认","已发货","已完成"];
+
+// ===================== 加载订单 =====================
+function loadOrders() {
+  try {
+    return JSON.parse(localStorage.getItem("shop_orders") || "[]");
+  } catch(e) { return []; }
+}
+
+function saveOrders(orders) {
+  localStorage.setItem("shop_orders", JSON.stringify(orders));
+}
+
+// ===================== STATS =====================
+function renderStats() {
+  const orders = loadOrders();
+  const today = new Date().toLocaleDateString("zh-CN");
+  const newOrders = orders.filter(o => (o.status||"待处理")==="待处理");
+  const total = orders.reduce((s,o)=>s+o.total, 0);
+  const todayOrders = orders.filter(o => new Date(o.orderTime).toLocaleDateString("zh-CN")===today);
+
+  document.getElementById("stat-total").textContent = orders.length;
+  document.getElementById("stat-new").textContent = newOrders.length;
+  document.getElementById("stat-amount").textContent = `¥${total}`;
+  document.getElementById("stat-today").textContent = todayOrders.length;
+}
+
+// ===================== TABLE =====================
+function renderTable() {
+  const orders = loadOrders();
+  const search = document.getElementById("searchFilter").value.trim().toLowerCase();
+  const statusF = document.getElementById("statusFilter").value;
+  const dateF = document.getElementById("dateFilter").value;
+
+  let filtered = orders.filter(o => {
+    const status = o.status || "待处理";
+    const matchSearch = !search ||
+      o.name.toLowerCase().includes(search) ||
+      o.phone.includes(search) ||
+      (o.items||[]).some(i=>i.name.toLowerCase().includes(search)) ||
+      o.orderNo.toLowerCase().includes(search);
+    const matchStatus = !statusF || status === statusF;
+    const matchDate = !dateF || o.orderTime.startsWith(dateF);
+    return matchSearch && matchStatus && matchDate;
+  });
+
+  document.getElementById("ordersCount").textContent = `${filtered.length} 条记录`;
+
+  const tbody = document.getElementById("ordersBody");
+  const emptyEl = document.getElementById("emptyState");
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = "";
+    emptyEl.style.display = "block";
+    return;
+  }
+  emptyEl.style.display = "none";
+
+  tbody.innerHTML = filtered.map(o => {
+    const status = o.status || "待处理";
+    const statusClass = STATUS_MAP[status] || "new";
+    const itemsSummary = (o.items||[]).slice(0,3).map(i=>`
+      <div class="item-line">${i.name} ×${i.qty}</div>
+    `).join('') + ((o.items||[]).length>3?`<div class="item-line" style="color:#aaa;">...共${o.items.length}种</div>`:'');
+
+    return `<tr>
+      <td>
+        <div class="order-no">${o.orderNo}</div>
+        <div class="order-time">${o.orderTime}</div>
+      </td>
+      <td>
+        <div class="buyer-name">${o.name}</div>
+        <div class="buyer-phone">${o.phone}</div>
+        <div style="font-size:11px;color:#aaa;max-width:160px;margin-top:2px;">${o.address}</div>
+      </td>
+      <td><div class="items-list">${itemsSummary}</div></td>
+      <td><div class="total-price">¥${o.total}</div></td>
+      <td><span class="status-badge status-${statusClass}">${status}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-sm" style="background:#e3f2fd;color:#1565c0;" onclick="viewDetail('${o.orderNo}')">详情</button>
+          <button class="btn btn-sm" style="background:#e8f5e9;color:#2e7d32;" onclick="updateStatus('${o.orderNo}')">更新</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== UPDATE STATUS =====================
+function updateStatus(orderNo) {
+  const orders = loadOrders();
+  const order = orders.find(o=>o.orderNo===orderNo);
+  if (!order) return;
+
+  const current = order.status || "待处理";
+  const currentIdx = STATUS_LABELS.indexOf(current);
+  const options = STATUS_LABELS.map((s,i)=>`${i===currentIdx?'✓ ':''}${s}`).join('\n');
+
+  const choice = prompt(`当前状态: ${current}\n\n选择新状态（输入数字）:\n1. 待处理\n2. 已确认\n3. 已发货\n4. 已完成`, currentIdx+1);
+  if (!choice) return;
+
+  const idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < STATUS_LABELS.length) {
+    order.status = STATUS_LABELS[idx];
+    saveOrders(orders);
+    renderStats();
+    renderTable();
+  }
+}
+
+// ===================== VIEW DETAIL =====================
+function viewDetail(orderNo) {
+  const orders = loadOrders();
+  const o = orders.find(x=>x.orderNo===orderNo);
+  if (!o) return;
+
+  const itemsHtml = (o.items||[]).map(i=>`
+    <tr>
+      <td>${i.name}</td>
+      <td style="color:#888;">${i.category}</td>
+      <td>¥${i.price}</td>
+      <td>${i.qty}</td>
+      <td style="font-weight:700;color:#ff6b9d;">¥${i.subtotal}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById("detailContent").innerHTML = `
+    <div class="info-row"><span class="info-label">订单号</span><span class="info-val" style="font-weight:700;color:#ff6b9d;">${o.orderNo}</span></div>
+    <div class="info-row"><span class="info-label">下单时间</span><span class="info-val">${o.orderTime}</span></div>
+    <div class="info-row"><span class="info-label">收件人</span><span class="info-val">${o.name}</span></div>
+    <div class="info-row"><span class="info-label">联系电话</span><span class="info-val">${o.phone}</span></div>
+    <div class="info-row"><span class="info-label">收货地址</span><span class="info-val">${o.address}</span></div>
+    ${o.note?`<div class="info-row"><span class="info-label">备注</span><span class="info-val">${o.note}</span></div>`:''}
+    <div class="info-row"><span class="info-label">状态</span><span class="info-val">${o.status||"待处理"}</span></div>
+    <hr style="border:none;border-top:1px solid #f0f0f0;margin:12px 0;" />
+    <table class="order-items-table">
+      <thead><tr><th>商品</th><th>类别</th><th>单价</th><th>数量</th><th>小计</th></tr></thead>
+      <tbody>${itemsHtml}</tbody>
+    </table>
+    <div class="total-section">
+      <span class="label">订单合计</span>
+      <span class="val">¥${o.total}</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="printOrder('${o.orderNo}')">🖨️ 打印点货单</button>
+      <button class="btn" style="background:#f0f0f0;color:#555;" onclick="closeDetail()">关闭</button>
+    </div>
+  `;
+
+  document.getElementById("detailModal").classList.add("show");
+}
+
+function closeDetail() {
+  document.getElementById("detailModal").classList.remove("show");
+}
+
+// ===================== PRINT =====================
+function printOrder(orderNo) {
+  const orders = loadOrders();
+  const o = orders.find(x=>x.orderNo===orderNo);
+  if (!o) return;
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>点货单-${o.orderNo}</title>
+  <style>
+    body { font-family: "PingFang SC", Arial, sans-serif; padding: 30px; color: #333; }
+    h2 { text-align: center; margin-bottom: 4px; }
+    .subtitle { text-align: center; color: #888; margin-bottom: 20px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 14px; }
+    .info-item { display: flex; gap: 8px; }
+    .info-item .lbl { color: #888; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    th, td { padding: 10px 12px; text-align: left; border: 1px solid #ddd; font-size: 13px; }
+    thead { background: #f5f5f5; }
+    .total-row td { font-weight: 700; font-size: 16px; background: #fff5f8; color: #e05585; }
+    .footer { text-align: center; color: #aaa; font-size: 12px; margin-top: 30px; }
+    @media print { button { display: none; } }
+  </style></head><body>
+  <h2>宝贝优选代购 · 点货单</h2>
+  <p class="subtitle">订单号：${o.orderNo}</p>
+  <div class="info-grid">
+    <div class="info-item"><span class="lbl">下单时间：</span>${o.orderTime}</div>
+    <div class="info-item"><span class="lbl">收件人：</span>${o.name}</div>
+    <div class="info-item"><span class="lbl">联系电话：</span>${o.phone}</div>
+    <div class="info-item"><span class="lbl">状态：</span>${o.status||"待处理"}</div>
+    <div class="info-item" style="grid-column:span 2"><span class="lbl">收货地址：</span>${o.address}</div>
+    ${o.note?`<div class="info-item" style="grid-column:span 2"><span class="lbl">备注：</span>${o.note}</div>`:''}
+  </div>
+  <table>
+    <thead><tr><th>序号</th><th>商品名称</th><th>品牌</th><th>类别</th><th>单价</th><th>数量</th><th>小计</th><th>备注</th></tr></thead>
+    <tbody>
+    ${(o.items||[]).map((item,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${item.name}</td>
+        <td>${item.brand||''}</td>
+        <td>${item.category}</td>
+        <td>¥${item.price}</td>
+        <td>${item.qty}</td>
+        <td>¥${item.subtotal}</td>
+        <td></td>
+      </tr>`).join('')}
+    <tr class="total-row"><td colspan="6" style="text-align:right;">合计</td><td>¥${o.total}</td><td></td></tr>
+    </tbody>
+  </table>
+  <div class="footer">打印时间：${new Date().toLocaleString("zh-CN")} · 宝贝优选代购</div>
+  <br><button onclick="window.print()">🖨️ 打印</button>
+  </body></html>`);
+  w.document.close();
+}
+
+// ===================== EXPORT CSV =====================
+function exportCSV() {
+  const orders = loadOrders();
+  if (orders.length === 0) { alert("暂无订单数据"); return; }
+
+  const rows = [["订单号","下单时间","收件人","电话","地址","备注","商品明细","合计","状态"]];
+  orders.forEach(o => {
+    const itemsStr = (o.items||[]).map(i=>`${i.name}×${i.qty}(¥${i.subtotal})`).join("；");
+    rows.push([o.orderNo, o.orderTime, o.name, o.phone, o.address, o.note||"", itemsStr, o.total, o.status||"待处理"]);
+  });
+
+  const csvContent = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `订单汇总_${new Date().toLocaleDateString("zh-CN").replace(/\//g,'-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===================== 同步到腾讯文档 =====================
+function syncToTencentDoc() {
+  const orders = loadOrders();
+  if (orders.length === 0) { alert("暂无订单数据"); return; }
+
+  // 腾讯文档同步说明
+  alert(`📊 腾讯文档同步说明\n\n当前有 ${orders.length} 条订单记录。\n\n对接方式：\n1. 点击"导出CSV"下载订单数据\n2. 在腾讯文档中新建表格\n3. 点击"导入" → 上传CSV文件\n\n💡 如需自动推送，需要配置后端接口或使用腾讯文档 API，\n   请联系技术人员协助配置。`);
+}
+
+// ===================== CLEAR ALL =====================
+function clearAllOrders() {
+  if (!confirm("⚠️ 确定要清空所有本地订单记录吗？此操作不可恢复！")) return;
+  localStorage.removeItem("shop_orders");
+  renderStats();
+  renderTable();
+}
+
+function clearFilters() {
+  document.getElementById("searchFilter").value = "";
+  document.getElementById("statusFilter").value = "";
+  document.getElementById("dateFilter").value = "";
+  renderTable();
+}
+
+function refreshOrders() {
+  renderStats();
+  renderTable();
+  // 短暂提示
+  const btn = event.target;
+  btn.textContent = "✅ 已刷新";
+  setTimeout(()=>btn.textContent="🔄 刷新", 1500);
+}
+
+// INIT
+renderStats();
+renderTable();
+</script>
+</body>
+</html>
