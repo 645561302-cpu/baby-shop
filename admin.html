@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>订单管理后台 · 宝贝优选</title>
+  <title>订单管理后台 · HahaPu</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -255,7 +255,7 @@
 <div class="header">
   <div>
     <h1>📋 订单管理后台</h1>
-    <p>宝贝优选代购 · 商家专用</p>
+    <p>HahaPu · 商家专用</p>
   </div>
   <div class="header-actions">
     <button class="btn btn-outline" onclick="refreshOrders()">🔄 刷新</button>
@@ -599,7 +599,7 @@ function printOrder(orderNo) {
     .footer { text-align: center; color: #aaa; font-size: 12px; margin-top: 30px; }
     @media print { button { display: none; } }
   </style></head><body>
-  <h2>宝贝优选代购 · 点货单</h2>
+  <h2>HahaPu · 点货单</h2>
   <p class="subtitle">订单号：${o.orderNo}</p>
   <div class="info-grid">
     <div class="info-item"><span class="lbl">下单时间：</span>${o.orderTime}</div>
@@ -626,7 +626,7 @@ function printOrder(orderNo) {
     <tr class="total-row"><td colspan="6" style="text-align:right;">合计</td><td>¥${o.total}</td><td></td></tr>
     </tbody>
   </table>
-  <div class="footer">打印时间：${new Date().toLocaleString("zh-CN")} · 宝贝优选代购</div>
+  <div class="footer">打印时间：${new Date().toLocaleString("zh-CN")} · HahaPu</div>
   <br><button onclick="window.print()">🖨️ 打印</button>
   </body></html>`);
   w.document.close();
