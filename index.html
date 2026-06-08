@@ -1,1269 +1,748 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HahaPu · 精选好物</title>
-  <style>
-    :root {
-      --primary: #ff6b9d;
-      --primary-light: #ffe4ef;
-      --primary-dark: #e05585;
-      --accent: #ffb347;
-      --accent-light: #fff3e0;
-      --text: #333;
-      --text-muted: #888;
-      --bg: #fafafa;
-      --card-bg: #fff;
-      --border: #f0f0f0;
-      --shadow: 0 2px 12px rgba(0,0,0,0.08);
-      --shadow-hover: 0 8px 24px rgba(255,107,157,0.2);
-      --radius: 12px;
-      --radius-sm: 8px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HahaPu 宝贝优选代购商城</title>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --primary: #ff6b8a;
+  --primary-dark: #ff4d7a;
+  --primary-light: #fff0f4;
+  --bg: #f5f5f5;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #888888;
+  --border: #f0f0f0;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+  --radius: 14px;
+  --tab-bar-h: 56px;
+  --header-h: 52px;
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+/* ===== APP SHELL ===== */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+.app-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: 10px 14px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.app-logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.app-search {
+  flex: 1;
+  position: relative;
+}
+.app-search input {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  border: none;
+  border-radius: 18px;
+  font-size: 13px;
+  background: rgba(255,255,255,0.95);
+  color: var(--text);
+  outline: none;
+}
+.app-search input::placeholder { color: #bbb; }
+.app-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #bbb;
+}
 
-    /* ===== HEADER ===== */
-    .header {
-      background: linear-gradient(135deg, #ff6b9d 0%, #ff9a5c 100%);
-      padding: 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 16px rgba(255,107,157,0.3);
-    }
-    .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: white;
-      text-decoration: none;
-    }
-    .logo-icon { font-size: 28px; }
-    .logo-text { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-    .logo-sub { font-size: 12px; opacity: 0.85; }
+/* ===== MAIN CONTENT ===== */
+.app-main {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.tab-page {
+  display: none;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-page.active { display: block; }
 
-    .search-bar {
-      flex: 1;
-      max-width: 400px;
-      position: relative;
-    }
-    .search-bar input {
-      width: 100%;
-      padding: 10px 44px 10px 16px;
-      border: none;
-      border-radius: 24px;
-      background: rgba(255,255,255,0.95);
-      font-size: 14px;
-      outline: none;
-      color: var(--text);
-    }
-    .search-bar input::placeholder { color: #bbb; }
-    .search-bar .search-icon {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--primary);
-      font-size: 16px;
-      cursor: pointer;
-    }
+/* ===== TAB BAR ===== */
+.tab-bar {
+  display: flex;
+  height: var(--tab-bar-h);
+  background: white;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 100;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 11px;
+  border: none;
+  background: none;
+  transition: all 0.2s;
+  position: relative;
+}
+.tab-item.active { color: var(--primary); }
+.tab-item .tab-icon { font-size: 22px; line-height: 1; }
+.tab-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  background: #ff3b30;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+.tab-badge.show { display: flex; }
 
-    .cart-btn {
-      position: relative;
-      background: rgba(255,255,255,0.2);
-      border: 2px solid rgba(255,255,255,0.5);
-      color: white;
-      padding: 9px 18px;
-      border-radius: 24px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .cart-btn:hover { background: rgba(255,255,255,0.3); }
-    .cart-badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: #ff3b30;
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      min-width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4px;
-    }
-    .cart-badge.show { display: flex; }
+/* ===== HOME TAB ===== */
+.home-content { padding: 12px; padding-bottom: 80px; }
+.hot-section { margin-bottom: 16px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.section-icon { font-size: 18px; }
+.section-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.section-desc { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+.hot-products-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+.hot-products-scroll::-webkit-scrollbar { height: 4px; }
+.hot-products-scroll::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 2px; }
+.hot-products-scroll .product-card { min-width: 150px; max-width: 150px; }
 
-    /* ===== HERO BANNER ===== */
-    .hero {
-      background: linear-gradient(135deg, #fff5f8 0%, #fff3e8 100%);
-      padding: 28px 20px;
-      text-align: center;
-      border-bottom: 1px solid #ffe0ec;
-    }
-    .hero h2 {
-      font-size: 22px;
-      color: var(--primary);
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .hero p {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-    .hero-tags {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-    .hero-tag {
-      background: var(--primary-light);
-      color: var(--primary);
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+.brand-filter-scroll {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.brand-chip {
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.brand-chip:hover { border-color: var(--primary); color: var(--primary); }
+.brand-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+.brand-chip.more-btn {
+  border-style: dashed;
+  color: var(--primary);
+  font-weight: 600;
+}
+.brand-chip.more-btn.open { border-style: solid; }
 
-    /* ===== NAV TABS ===== */
-    .nav-tabs {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 65px;
-      z-index: 90;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .nav-tabs-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0;
-    }
-    /* 主行（固定展示） */
-    .nav-row-main {
-      display: flex;
-      width: 100%;
-      align-items: center;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .nav-row-main::-webkit-scrollbar { display: none; }
-    /* 展开行（折叠/展开） */
-    .nav-row-more {
-      display: flex;
-      width: 100%;
-      flex-wrap: wrap;
-      border-top: 1px solid var(--border);
-      overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.3s ease;
-    }
-    .nav-row-more.expanded {
-      max-height: 200px;
-    }
-    .tab-btn {
-      padding: 12px 16px;
-      border: none;
-      background: none;
-      font-size: 14px;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      border-bottom: 3px solid transparent;
-      font-weight: 500;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .tab-btn:hover { color: var(--primary); }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
-    /* 展开/收起按钮 */
-    .tab-btn-more {
-      padding: 12px 14px;
-      border: none;
-      background: none;
-      font-size: 13px;
-      color: var(--primary);
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-left: auto;
-      transition: all 0.2s;
-    }
-    .tab-btn-more:hover { opacity: 0.75; }
-    .tab-btn-more .arrow {
-      display: inline-block;
-      transition: transform 0.3s ease;
-      font-style: normal;
-    }
-    .tab-btn-more.open .arrow { transform: rotate(180deg); }
-    .tab-count {
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: 8px;
-    }
+/* ===== PRODUCT GRID ===== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.product-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.25s;
+  cursor: pointer;
+  position: relative;
+  border: 1.5px solid transparent;
+}
+.product-card:active { transform: scale(0.98); }
+.product-img-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  overflow: hidden;
+  background: #f8f8f8;
+}
+.product-img-wrap img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.product-img-placeholder {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  background: linear-gradient(135deg, #fff5f8, #fff3e0);
+}
+.product-tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+.product-info { padding: 8px 10px 10px; }
+.product-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+.product-brand { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+.product-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.product-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary);
+}
+.product-price span { font-size: 11px; font-weight: 500; }
+.add-to-cart-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
 
-    /* ===== MAIN CONTENT ===== */
-    .main-wrapper {
-      display: flex;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .main {
-      flex: 1;
-      padding: 20px;
-      min-width: 0;
-    }
+/* ===== CATEGORY TAB (Left sidebar + Right content) ===== */
+.category-page {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+.cat-sidebar {
+  width: 90px;
+  background: #fafafa;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+}
+.cat-sidebar-item {
+  padding: 14px 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  line-height: 1.3;
+}
+.cat-sidebar-item.active {
+  background: white;
+  color: var(--primary);
+  border-left-color: var(--primary);
+  font-weight: 700;
+}
+.cat-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.cat-brand-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  scrollbar-width: none;
+}
+.cat-brand-row::-webkit-scrollbar { display: none; }
+.cat-brand-row .brand-chip { flex-shrink: 0; }
 
-    /* ===== SIDEBAR ===== */
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 199;
-    }
-    .sidebar-overlay.show { display: block; }
-    .sidebar {
-      display: none;
-      width: 220px;
-      background: white;
-      border-right: 1px solid var(--border);
-      height: calc(100vh - 65px);
-      position: sticky;
-      top: 65px;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 18px;
-      font-weight: 700;
-      font-size: 15px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-    }
-    .sidebar-close {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
-    .sidebar-cats {
-      padding: 8px 0;
-    }
-    .sidebar-cat {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 18px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text);
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-    .sidebar-cat:hover {
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-    .sidebar-cat.active {
-      background: var(--primary-light);
-      color: var(--primary);
-      border-left-color: var(--primary);
-      font-weight: 700;
-    }
-    .sidebar-cat-icon {
-      font-size: 18px;
-    }
-    .sidebar-cat-name {
-      flex: 1;
-    }
-    .sidebar-cat-count {
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: 8px;
-    }
+/* ===== CART TAB ===== */
+.cart-page { padding: 12px; padding-bottom: 80px; }
+.cart-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.cart-empty-icon { font-size: 56px; margin-bottom: 16px; }
+.cart-item {
+  display: flex;
+  gap: 10px;
+  background: white;
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+.cart-item-img {
+  width: 70px; height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.cart-item-price { font-size: 14px; font-weight: 700; color: var(--primary); }
+.cart-item-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.cart-item-qty button {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cart-item-remove {
+  background: none;
+  border: none;
+  color: #ff3b30;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.cart-footer {
+  position: fixed;
+  bottom: var(--tab-bar-h);
+  left: 0; right: 0;
+  background: white;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+.cart-total-val { font-size: 20px; font-weight: 800; color: var(--primary); }
+.cart-checkout-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
 
-    /* Desktop: show sidebar */
-    @media (min-width: 1024px) {
-      .sidebar {
-        display: block;
-      }
-    }
+/* ===== PROFILE TAB ===== */
+.profile-page { padding: 12px; padding-bottom: 80px; }
+.profile-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.profile-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.address-item {
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  position: relative;
+}
+.address-item.active { border-color: var(--primary); background: var(--primary-light); }
+.address-item .addr-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.address-item .addr-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.address-item .addr-phone { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.address-item .addr-default-tag {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn-secondary {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text-muted);
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+.form-group label span { color: #ff3b30; }
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--primary); }
 
-    /* Mobile: sidebar as overlay */
-    @media (max-width: 1023px) {
-      .sidebar {
-        position: fixed;
-        top: 0; left: 0;
-        width: 280px;
-        height: 100vh;
-        z-index: 200;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        box-shadow: 2px 0 12px rgba(0,0,0,0.15);
-      }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-close { display: block; }
-      .sidebar-overlay.show { display: block; }
-    }
+/* ===== MODALS ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  max-width: 100%;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 20px;
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: rgba(0,0,0,0.05);
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-muted);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-img-wrap {
+  width: 100%;
+  padding-top: 80%;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #f8f8f8;
+}
+.modal-img-wrap img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.modal-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.modal-brand { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.modal-price { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 12px; }
+.modal-desc { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 16px; }
+.modal-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.qty-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qty-display { font-size: 18px; font-weight: 700; min-width: 30px; text-align: center; }
+.modal-add-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
 
-    .section { display: none; }
-    .section.active { display: block; }
+/* Checkout modal */
+.checkout-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+}
+.checkout-overlay.show { display: flex; }
+.checkout-modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  animation: slideUp 0.3s ease;
+}
+.checkout-modal-header { margin-bottom: 14px; }
+.checkout-modal-header h3 { font-size: 17px; font-weight: 700; }
+.checkout-modal-header p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.checkout-order-list { margin-bottom: 14px; }
+.checkout-order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.checkout-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.checkout-total-val { font-size: 20px; font-weight: 800; color: var(--primary); }
+.form-note {
+  background: var(--primary-light);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--primary);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.checkout-actions {
+  display: flex;
+  gap: 10px;
+}
+.checkout-actions button { flex: 1; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; }
+.co-cancel-btn { background: var(--bg); color: var(--text-muted); }
+.co-submit-btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
 
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .section-icon { font-size: 22px; }
-    .section-title { font-size: 18px; font-weight: 700; color: var(--text); }
-    .section-desc { font-size: 13px; color: var(--text-muted); margin-left: auto; }
+/* Success modal */
+.success-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.success-overlay.show { display: flex; }
+.success-modal {
+  background: white;
+  border-radius: 20px;
+  max-width: 360px;
+  width: 100%;
+  padding: 36px 20px;
+  text-align: center;
+}
+.success-icon { font-size: 56px; margin-bottom: 14px; }
+.success-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.success-msg { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.6; }
+.success-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
 
-    /* ===== BRAND FILTER ===== */
-    .brand-filter {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-    .brand-chip {
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border);
-      background: white;
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s;
-      font-weight: 500;
-    }
-    .brand-chip:hover { border-color: var(--primary); color: var(--primary); }
-    .brand-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
-    .brand-filter-scroll {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .brand-rest {
-      display: none;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .brand-rest.expanded { display: flex; }
-    .brand-chip.more-btn {
-      border-style: dashed;
-      color: var(--primary);
-      font-weight: 600;
-      margin-left: 2px;
-    }
-    .brand-chip.more-btn.open { border-style: solid; }
-
-    /* ===== HOT PRODUCTS ===== */
-    .hot-section {
-      margin-bottom: 20px;
-    }
-    .hot-products-scroll {
-      display: flex;
-      gap: 14px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-light) transparent;
-    }
-    .hot-products-scroll::-webkit-scrollbar {
-      height: 6px;
-    }
-    .hot-products-scroll::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .hot-products-scroll::-webkit-scrollbar-thumb {
-      background: var(--primary-light);
-      border-radius: 3px;
-    }
-    .hot-products-scroll .product-card {
-      min-width: 180px;
-      max-width: 180px;
-    }
-
-    /* ===== PRODUCT GRID ===== */
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 14px;
-    }
-
-    .product-card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: all 0.25s;
-      cursor: pointer;
-      position: relative;
-      border: 1.5px solid transparent;
-    }
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-hover);
-      border-color: var(--primary-light);
-    }
-
-    .product-img-wrap {
-      position: relative;
-      width: 100%;
-      padding-top: 100%;
-      overflow: hidden;
-      background: #f8f8f8;
-    }
-    .product-img-wrap img {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s;
-    }
-    .product-card:hover .product-img-wrap img { transform: scale(1.05); }
-    .product-img-placeholder {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      background: linear-gradient(135deg, #fff5f8, #fff3e0);
-    }
-
-    .product-tag {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-
-    .product-info {
-      padding: 10px 12px 12px;
-    }
-    .product-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.4;
-      margin-bottom: 4px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .product-brand {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-    .product-price-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .product-price {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--primary);
-    }
-    .product-price span { font-size: 12px; font-weight: 500; }
-    .product-desc-preview {
-      font-size: 11px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      margin-bottom: 8px;
-      min-height: 16px;
-    }
-
-    .add-to-cart-btn {
-      width: 100%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      padding: 9px 0;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-    .add-to-cart-btn:hover { opacity: 0.9; transform: scale(0.98); }
-    .add-to-cart-btn.added {
-      background: linear-gradient(135deg, #4caf50, #388e3c);
-    }
-
-    .qty-control {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      width: 100%;
-      border: 1.5px solid var(--primary);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-    .qty-btn {
-      width: 34px;
-      height: 34px;
-      background: var(--primary-light);
-      border: none;
-      color: var(--primary);
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.1s;
-      flex-shrink: 0;
-    }
-    .qty-btn:hover { background: var(--primary); color: white; }
-    .qty-num {
-      flex: 1;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--primary);
-      background: white;
-    }
-
-    /* ===== PRODUCT DETAIL MODAL ===== */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 200;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal-sheet {
-      background: white;
-      border-radius: 20px 20px 0 0;
-      width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: slideUp 0.3s ease;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-    .modal-handle {
-      width: 40px;
-      height: 4px;
-      background: #e0e0e0;
-      border-radius: 2px;
-      margin: 12px auto 0;
-    }
-    .modal-img {
-      width: 100%;
-      max-height: 280px;
-      object-fit: contain;
-      background: #f8f8f8;
-      padding: 16px;
-    }
-    .modal-body { padding: 20px; }
-    .modal-category {
-      font-size: 12px;
-      color: var(--primary);
-      background: var(--primary-light);
-      padding: 2px 10px;
-      border-radius: 10px;
-      display: inline-block;
-      margin-bottom: 8px;
-    }
-    .modal-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.4;
-      margin-bottom: 6px;
-    }
-    .modal-price-row {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .modal-price {
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--primary);
-    }
-    .modal-price span { font-size: 16px; }
-    .modal-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 16px 0;
-    }
-    .modal-desc-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .modal-desc {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.8;
-    }
-    .modal-desc.empty {
-      color: #ccc;
-      font-style: italic;
-    }
-    .modal-cart-section {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-      background: white;
-      position: sticky;
-      bottom: 0;
-    }
-    .modal-qty-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 12px;
-    }
-    .modal-qty-label { font-size: 14px; color: var(--text); font-weight: 600; }
-    .modal-qty-control {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      border: 1.5px solid var(--primary);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-    .modal-qty-btn {
-      width: 36px;
-      height: 36px;
-      background: var(--primary-light);
-      border: none;
-      color: var(--primary);
-      font-size: 20px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-qty-btn:hover { background: var(--primary); color: white; }
-    .modal-qty-num {
-      width: 48px;
-      text-align: center;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--primary);
-      background: white;
-    }
-    .modal-add-btn {
-      width: 100%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      padding: 14px 0;
-      border-radius: var(--radius);
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .modal-add-btn:hover { opacity: 0.9; }
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.12);
-      border: none;
-      color: #555;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ===== CART DRAWER ===== */
-    .cart-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 300;
-    }
-    .cart-overlay.show { display: block; }
-    .cart-drawer {
-      position: fixed;
-      right: -100%;
-      top: 0;
-      width: min(420px, 100vw);
-      height: 100vh;
-      background: white;
-      z-index: 301;
-      display: flex;
-      flex-direction: column;
-      transition: right 0.3s ease;
-      box-shadow: -4px 0 24px rgba(0,0,0,0.12);
-    }
-    .cart-drawer.open { right: 0; }
-    .cart-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .cart-title { font-size: 18px; font-weight: 700; }
-    .cart-close-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #f5f5f5;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .cart-items {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 20px;
-    }
-    .cart-empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-    }
-    .cart-empty-icon { font-size: 52px; margin-bottom: 12px; }
-    .cart-item {
-      display: flex;
-      gap: 12px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-      align-items: flex-start;
-    }
-    .cart-item-img {
-      width: 72px;
-      height: 72px;
-      object-fit: cover;
-      border-radius: var(--radius-sm);
-      background: #f5f5f5;
-      flex-shrink: 0;
-    }
-    .cart-item-img-placeholder {
-      width: 72px;
-      height: 72px;
-      border-radius: var(--radius-sm);
-      background: linear-gradient(135deg, #fff5f8, #fff3e0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      flex-shrink: 0;
-    }
-    .cart-item-info { flex: 1; min-width: 0; }
-    .cart-item-name {
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.4;
-      margin-bottom: 4px;
-      color: var(--text);
-    }
-    .cart-item-category { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
-    .cart-item-price-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .cart-item-price { font-size: 16px; font-weight: 700; color: var(--primary); }
-    .cart-item-qty {
-      display: flex;
-      align-items: center;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .ci-qty-btn {
-      width: 28px;
-      height: 28px;
-      background: #f5f5f5;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #555;
-    }
-    .ci-qty-btn:hover { background: var(--primary-light); color: var(--primary); }
-    .ci-qty-num {
-      width: 32px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .cart-footer {
-      padding: 16px 20px;
-      border-top: 2px solid var(--border);
-      background: #fafafa;
-    }
-    .cart-subtotal {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    .cart-subtotal-label { font-size: 14px; color: var(--text-muted); }
-    .cart-subtotal-val {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--primary);
-    }
-    .cart-item-count { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
-    .checkout-btn {
-      width: 100%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      padding: 15px 0;
-      border-radius: var(--radius);
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .checkout-btn:hover { opacity: 0.9; }
-    .clear-cart-btn {
-      width: 100%;
-      background: none;
-      border: 1.5px solid #e0e0e0;
-      color: var(--text-muted);
-      padding: 10px 0;
-      border-radius: var(--radius);
-      font-size: 13px;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    /* ===== CHECKOUT MODAL ===== */
-    .checkout-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 400;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .checkout-overlay.show { display: flex; }
-    .checkout-modal {
-      background: white;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: fadeIn 0.25s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .checkout-modal-header {
-      padding: 24px 24px 0;
-    }
-    .checkout-modal-header h3 {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .checkout-modal-header p {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .checkout-order-list {
-      padding: 16px 24px;
-      max-height: 200px;
-      overflow-y: auto;
-      border-bottom: 1px solid var(--border);
-    }
-    .checkout-order-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      font-size: 13px;
-    }
-    .co-name { color: var(--text); flex: 1; }
-    .co-qty { color: var(--text-muted); margin: 0 8px; }
-    .co-price { color: var(--primary); font-weight: 700; }
-    .checkout-total-row {
-      padding: 12px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .ct-label { font-size: 14px; font-weight: 600; }
-    .ct-val { font-size: 24px; font-weight: 800; color: var(--primary); }
-    .checkout-form { padding: 16px 24px 24px; }
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    .form-group label span { color: var(--primary); }
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid #e0e0e0;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      outline: none;
-      color: var(--text);
-      font-family: inherit;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group textarea:focus { border-color: var(--primary); }
-    .form-group textarea { resize: vertical; min-height: 80px; }
-    .form-note {
-      font-size: 12px;
-      color: var(--text-muted);
-      padding: 10px 14px;
-      background: #f9f9f9;
-      border-radius: var(--radius-sm);
-      margin-bottom: 14px;
-      line-height: 1.6;
-    }
-    .checkout-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .co-cancel-btn {
-      flex: 1;
-      padding: 14px 0;
-      background: none;
-      border: 1.5px solid #e0e0e0;
-      border-radius: var(--radius);
-      font-size: 15px;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
-    .co-submit-btn {
-      flex: 2;
-      padding: 14px 0;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .co-submit-btn:hover { opacity: 0.9; }
-    .co-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* ===== SUCCESS ===== */
-    .success-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 500;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .success-overlay.show { display: flex; }
-    .success-modal {
-      background: white;
-      border-radius: 20px;
-      padding: 40px 32px;
-      text-align: center;
-      max-width: 360px;
-      width: 100%;
-      animation: fadeIn 0.25s ease;
-    }
-    .success-icon { font-size: 64px; margin-bottom: 16px; }
-    .success-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .success-msg { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
-    .success-btn {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      padding: 13px 40px;
-      border-radius: var(--radius);
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* ===== NO RESULTS ===== */
-    .no-results {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-    }
-
-    /* ===== TOAST ===== */
-    .toast {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(0,0,0,0.8);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 24px;
-      font-size: 13px;
-      z-index: 600;
-      opacity: 0;
-      transition: all 0.3s;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ===== ABOUT TAB ===== */
-    .about-card {
-      background: white;
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
-    }
-    .about-card h3 {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .about-card p, .about-card li {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.8;
-    }
-    .about-card ul { padding-left: 20px; }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 640px) {
-      .logo-sub { display: none; }
-      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .main { padding: 14px; }
-      .hero { padding: 20px 14px; }
-      .hero h2 { font-size: 18px; }
-    }
-    @media (max-width: 380px) {
-      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .product-info { padding: 8px; }
-      .product-name { font-size: 12px; }
-      .product-price { font-size: 16px; }
-    }
-  </style>
+/* Address modal */
+.address-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+}
+.address-overlay.show { display: flex; }
+.address-modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  animation: slideUp 0.3s ease;
+}
+</style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="header-inner">
-    <a class="logo" href="#">
-      <span class="logo-icon">🛍️</span>
-      <div>
-        <div class="logo-text">HahaPu</div>
-        <div class="logo-sub">精选代购·品质保障</div>
+<div id="app">
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-logo">🛍️ HahaPu</div>
+      <div class="app-search">
+        <span class="app-search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索商品、品牌..." oninput="handleSearch()" />
       </div>
-    </a>
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="搜索商品..." oninput="handleSearch()" />
-      <span class="search-icon">🔍</span>
     </div>
-    <button class="cart-btn" onclick="openCart()">
-      🛒 购物车
-      <span class="cart-badge" id="cartBadge">0</span>
+  </header>
+
+  <!-- MAIN -->
+  <main class="app-main">
+    <!-- TAB: HOME -->
+    <div class="tab-page active" id="tab-home">
+      <div class="home-content" id="homeContent"></div>
+    </div>
+
+    <!-- TAB: CATEGORY -->
+    <div class="tab-page" id="tab-category">
+      <div class="category-page">
+        <div class="cat-sidebar" id="catSidebar"></div>
+        <div class="cat-content" id="catContent"></div>
+      </div>
+    </div>
+
+    <!-- TAB: CART -->
+    <div class="tab-page" id="tab-cart">
+      <div class="cart-page" id="cartPage"></div>
+    </div>
+
+    <!-- TAB: PROFILE -->
+    <div class="tab-page" id="tab-profile">
+      <div class="profile-page" id="profilePage"></div>
+    </div>
+  </main>
+
+  <!-- TAB BAR -->
+  <nav class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('home')" data-tab="home">
+      <span class="tab-icon">🏠</span>
+      <span>官方精选</span>
     </button>
-  </div>
-</header>
-
-<!-- HERO -->
-<div class="hero">
-  <h2>🌟 精选母婴代购好物</h2>
-  <p>严选优质进口商品 · 宝宝健康成长的贴心之选</p>
-  <div class="hero-tags">
-    <span class="hero-tag">🌿 原装进口</span>
-    <span class="hero-tag">✅ 品质保障</span>
-    <span class="hero-tag">🚀 快速发货</span>
-    <span class="hero-tag">💬 专业顾问</span>
-  </div>
-</div>
-
-<!-- NAV TABS -->
-<nav class="nav-tabs">
-  <div class="nav-tabs-inner">
-    <div class="nav-row-main" id="navTabsMain"><!-- Generated by JS --></div>
-    <div class="nav-row-more" id="navTabsMore"><!-- Generated by JS --></div>
-  </div>
+    <button class="tab-item" onclick="switchTab('category')" data-tab="category">
+      <span class="tab-icon">📂</span>
+      <span>分类</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('cart')" data-tab="cart">
+      <span class="tab-icon">🛒</span>
+      <span>购物车</span>
+      <span class="tab-badge" id="tabCartBadge">0</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('profile')" data-tab="profile">
+      <span class="tab-icon">👤</span>
+      <span>我的</span>
+    </button>
   </nav>
-
-<!-- LEF SIDEBAR (Desktop) -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <span>📂 商品分类</span>
-    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
-  </div>
-  <div class="sidebar-cats" id="sidebarCats">
-    <!-- Generated by JS -->
-  </div>
-</aside>
-<!-- MAIN CONTENT -->
-<main class="main" id="mainContent">
-  <!-- Generated by JS -->
-</main>
+</div>
 
 <!-- PRODUCT MODAL -->
-<div class="modal-overlay" id="productModal" onclick="closeModal(event)">
-  <div class="modal-sheet" style="position:relative;">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeProductModal()">✕</button>
-    <img id="modalImg" class="modal-img" src="" alt="" onerror="this.style.display='none';document.getElementById('modalImgPlaceholder').style.display='flex'" />
-    <div id="modalImgPlaceholder" style="display:none;width:100%;height:200px;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(135deg,#fff5f8,#fff3e0);">🍀</div>
-    <div class="modal-body">
-      <div class="modal-category" id="modalCategory"></div>
-      <div class="modal-name" id="modalName"></div>
-      <div class="modal-price-row">
-        <div class="modal-price" id="modalPrice"></div>
-      </div>
-      <div class="modal-divider"></div>
-      <div class="modal-desc-title">📝 产品介绍</div>
-      <div class="modal-desc" id="modalDesc"></div>
-    </div>
-    <div class="modal-cart-section">
-      <div class="modal-qty-row">
-        <span class="modal-qty-label">数量</span>
-        <div class="modal-qty-control">
-          <button class="modal-qty-btn" onclick="changeModalQty(-1)">−</button>
-          <div class="modal-qty-num" id="modalQtyNum">1</div>
-          <button class="modal-qty-btn" onclick="changeModalQty(1)">+</button>
-        </div>
-      </div>
-      <button class="modal-add-btn" id="modalAddBtn" onclick="addFromModal()">🛒 加入购物车</button>
-    </div>
-  </div>
-</div>
-
-<!-- CART DRAWER -->
-<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
-<div class="cart-drawer" id="cartDrawer">
-  <div class="cart-header">
-    <div class="cart-title">🛒 我的购物车</div>
-    <button class="cart-close-btn" onclick="closeCart()">✕</button>
-  </div>
-  <div class="cart-items" id="cartItems">
-    <div class="cart-empty">
-      <div class="cart-empty-icon">🛍️</div>
-      <div>购物车空空的</div>
-      <div style="font-size:13px;margin-top:6px;">快去挑选宝贝喜欢的商品吧~</div>
-    </div>
-  </div>
-  <div class="cart-footer" id="cartFooter" style="display:none;">
-    <div class="cart-subtotal">
-      <span class="cart-subtotal-label">合计</span>
-      <span class="cart-subtotal-val" id="cartTotal">¥0</span>
-    </div>
-    <div class="cart-item-count" id="cartItemCount"></div>
-    <button class="checkout-btn" onclick="openCheckout()">去结单 →</button>
-    <button class="clear-cart-btn" onclick="clearCart()">清空购物车</button>
-  </div>
+<div class="modal-overlay" id="productModal">
+  <div class="modal" id="modalContent"></div>
 </div>
 
 <!-- CHECKOUT MODAL -->
@@ -1275,34 +754,41 @@
     </div>
     <div class="checkout-order-list" id="checkoutOrderList"></div>
     <div class="checkout-total-row">
-      <span class="ct-label">订单合计</span>
-      <span class="ct-val" id="checkoutTotal">¥0</span>
+      <span>订单合计</span>
+      <span class="checkout-total-val" id="checkoutTotal">¥0</span>
     </div>
-    <div class="checkout-form">
-      <div class="form-note">
-        💡 填写完成后点击「提交订单」，我们会收到您的订单并尽快安排代购，无需在线支付。
-      </div>
-      <div class="form-group">
-        <label>收件人姓名 <span>*</span></label>
-        <input type="text" id="buyerName" placeholder="请输入真实姓名" />
-      </div>
-      <div class="form-group">
-        <label>联系电话 <span>*</span></label>
-        <input type="tel" id="buyerPhone" placeholder="请输入手机号码" />
-      </div>
-      <div class="form-group">
-        <label>收货地址 <span>*</span></label>
-        <textarea id="buyerAddress" placeholder="省/市/区 + 详细地址"></textarea>
-      </div>
-      <div class="form-group">
-        <label>备注（选填）</label>
-        <input type="text" id="buyerNote" placeholder="如有特殊要求可在此说明" />
-      </div>
-      <div class="checkout-actions">
-        <button class="co-cancel-btn" onclick="closeCheckout()">取消</button>
-        <button class="co-submit-btn" id="submitBtn" onclick="submitOrder()">提交订单 🎉</button>
-      </div>
+    <div class="form-note">
+      💡 填写完成后点击「提交订单」，我们会收到您的订单并尽快安排代购，无需在线支付。
     </div>
+    <div id="checkoutAddressSection"></div>
+    <div class="checkout-form" id="checkoutForm"></div>
+    <div class="checkout-actions">
+      <button class="co-cancel-btn" onclick="closeCheckout()">取消</button>
+      <button class="co-submit-btn" onclick="submitOrder()">提交订单 🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADDRESS MODAL -->
+<div class="address-overlay" id="addressOverlay">
+  <div class="address-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="font-size:17px;font-weight:700;">📍 添加收货地址</h3>
+      <button class="modal-close" onclick="closeAddressModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>收件人姓名 <span>*</span></label>
+      <input type="text" id="addrName" placeholder="请输入真实姓名" />
+    </div>
+    <div class="form-group">
+      <label>联系电话 <span>*</span></label>
+      <input type="tel" id="addrPhone" placeholder="请输入手机号码" />
+    </div>
+    <div class="form-group">
+      <label>收货地址 <span>*</span></label>
+      <textarea id="addrDetail" placeholder="省/市/区 + 详细地址" rows="3"></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveAddress()">保存地址</button>
   </div>
 </div>
 
@@ -1316,253 +802,236 @@
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
 <script>
-// ===================== 商品数据 =====================
-// 📌 如需添加商品，在此数组中增加对象即可
-// 图片放在对应类别文件夹中，文件名与 image 字段对应（支持 .jpg/.JPG/.png）
-// desc 字段：填写产品介绍；空字符串则显示"暂无介绍"
-PRODUCTS = [
-  { id:1, category:"宝宝辅食", name:"Bebefood婴儿酱油", price:56, brand:"Bebefood", image:"宝宝辅食/Bebefood婴儿酱油.jpg", desc:"" , isHot:true},
-  { id:2, category:"宝宝辅食", name:"Bebefood天然调味海盐", price:68, brand:"Bebefood", image:"宝宝辅食/Bebefood天然调味海盐.jpg", desc:"" , isHot:true},
-  { id:3, category:"宝宝辅食", name:"小皮米粉", price:45, brand:"小皮", image:"宝宝辅食/小皮米粉.jpg", desc:"" },
-  { id:4, category:"宝宝辅食", name:"宝宝百味有机胚芽米", price:58, brand:"宝宝百味", image:"宝宝辅食/宝宝百味有机胚芽米.jpg", desc:"" },
-  { id:5, category:"宝宝辅食", name:"edisonmama乌冬面（蔬菜味）", price:39, brand:"edisonmama乌冬面（蔬菜味）", image:"宝宝辅食/edisonmama乌冬面（蔬菜味）.jpg", desc:"" },
-  { id:6, category:"宝宝辅食", name:"edisonmama乌冬面（原味）", price:39, brand:"edisonmama乌冬面（原味）", image:"宝宝辅食/edisonmama乌冬面（原味）.jpg", desc:"" },
-  { id:7, category:"宝宝辅食", name:"宝宝百味即食粥 苹果猪肉味", price:56, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 苹果猪肉味.jpg", desc:"" },
-  { id:8, category:"宝宝辅食", name:"宝宝百味即食粥野菜鸡肉味", price:56, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥野菜鸡肉味.jpg", desc:"" },
-  { id:9, category:"宝宝辅食", name:"宝宝百味即食粥 薯仔牛肉味", price:56, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 薯仔牛肉味.jpg", desc:"" },
-  { id:10, category:"宝宝辅食", name:"宝宝百味即食粥昆布三文鱼", price:54, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥昆布三文鱼.jpg", desc:"" },
-  { id:11, category:"宝宝辅食", name:"宝宝百味即食粥 菠菜虱目鱼", price:54, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 菠菜虱目鱼.jpg", desc:"" },
-  { id:12, category:"宝宝辅食", name:"宝宝百味即食粥 干贝银鱼味", price:54, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 干贝银鱼味.jpg", desc:"" },
-  { id:13, category:"宝宝辅食", name:"宝宝百味即食粥 南瓜鸡肉味", price:54, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 南瓜鸡肉味.jpg", desc:"" },
-  { id:14, category:"宝宝辅食", name:"宝宝百味即食粥 豆腐猪肉味", price:62, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 豆腐猪肉味.jpg", desc:"" },
-  { id:15, category:"宝宝辅食", name:"宝宝百味即食粥 香菇鸡肉味", price:62, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥 香菇鸡肉味.jpg", desc:"" },
-  { id:16, category:"宝宝辅食", name:"宝宝百味字母粉 番茄肉沫味", price:54, brand:"宝宝百味", image:"宝宝辅食/宝宝百味字母粉 番茄肉沫味.jpg", desc:"" },
-  { id:17, category:"宝宝辅食", name:"宝宝百味乌冬面 番茄牛肉味", price:62, brand:"宝宝百味", image:"宝宝辅食/宝宝百味乌冬面 番茄牛肉味.jpg", desc:"" },
-  { id:18, category:"宝宝辅食", name:"農純郷即时粥牛牛壮壮粥", price:185, brand:"農純郷", image:"宝宝辅食/農純郷即时粥牛牛壮壮粥.jpg", desc:"" },
-  { id:19, category:"宝宝辅食", name:"農純郷即时粥心干贝贝粥", price:165, brand:"農純郷", image:"宝宝辅食/農純郷即时粥心干贝贝粥.jpg", desc:"" },
-  { id:20, category:"宝宝辅食", name:"農純郷即时粥蛤蜊咕咕粥", price:185, brand:"農純郷", image:"宝宝辅食/農純郷即时粥蛤蜊咕咕粥.jpg", desc:"" },
-  { id:21, category:"宝宝辅食", name:"農純郷即时粥巧巧鲑鱼粥", price:185, brand:"農純郷", image:"宝宝辅食/農純郷即时粥巧巧鲑鱼粥.jpg", desc:"" },
-  { id:22, category:"宝宝辅食", name:"農純郷即时粥鲍鲍南瓜粥", price:185, brand:"農純郷", image:"宝宝辅食/農純郷即时粥鲍鲍南瓜粥.jpg", desc:"" },
-  { id:23, category:"宝宝辅食", name:"農純郷即时粥菠菠燕麦粥", price:135, brand:"農純郷", image:"宝宝辅食/農純郷即时粥菠菠燕麦粥.jpg", desc:"" },
-  { id:24, category:"宝宝辅食", name:"農純郷即时粥鸡肉宝宝粥", price:165, brand:"農純郷", image:"宝宝辅食/農純郷即时粥鸡肉宝宝粥.jpg", desc:"" },
-  { id:25, category:"宝宝辅食", name:"農純郷即时粥乖乖猪猪粥", price:165, brand:"農純郷", image:"宝宝辅食/農純郷即时粥乖乖猪猪粥.jpg", desc:"" },
-  { id:26, category:"宝宝辅食", name:"農純郷即时粥虱目乐乐粥", price:185, brand:"農純郷", image:"宝宝辅食/農純郷即时粥虱目乐乐粥.jpg", desc:"" },
-  { id:27, category:"宝宝辅食", name:"農純郷即时粥乖乖猪猪粥PLUS", price:198, brand:"農純郷", image:"宝宝辅食/農純郷即时粥乖乖猪猪粥PLUS.jpg", desc:"" },
-  { id:28, category:"宝宝辅食", name:"農純郷即时粥鲈鱼暖暖粥PLUS", price:198, brand:"農純郷", image:"宝宝辅食/農純郷即时粥鲈鱼暖暖粥PLUS.jpg", desc:"" },
-  { id:29, category:"宝宝辅食", name:"農純郷即时粥日日鸡肉粥PLUS", price:198, brand:"農純郷", image:"宝宝辅食/農純郷即时粥日日鸡肉粥PLUS.jpg", desc:"" },
-  { id:30, category:"宝宝辅食", name:"農純郷即时粥心干贝贝粥PLUS", price:198, brand:"農純郷", image:"宝宝辅食/農純郷即时粥心干贝贝粥PLUS.jpg", desc:"" },
-  { id:31, category:"宝宝辅食", name:"農純郷乖乖猪猪粥PLUSLarge", price:198, brand:"農純郷", image:"宝宝辅食/農純郷乖乖猪猪粥PLUSLarge.jpg", desc:"" },
-  { id:32, category:"宝宝辅食", name:"農純郷日日鸡肉粥PLUSLarge", price:198, brand:"農純郷", image:"宝宝辅食/農純郷日日鸡肉粥PLUSLarge.jpg", desc:"" },
-  { id:33, category:"宝宝辅食", name:"農純郷番茄起司海鲜炖饭", price:128, brand:"農純郷", image:"宝宝辅食/農純郷番茄起司海鲜炖饭.jpg", desc:"" },
-  { id:34, category:"宝宝辅食", name:"農純郷龙胆石斑㦢瓜炖饭", price:128, brand:"農純郷", image:"宝宝辅食/農純郷龙胆石斑㦢瓜炖饭.jpg", desc:"" },
-  { id:35, category:"宝宝辅食", name:"農純郷极上和牛藜麦炖饭", price:128, brand:"農純郷", image:"宝宝辅食/農純郷极上和牛藜麦炖饭.jpg", desc:"" },
-  { id:36, category:"宝宝辅食", name:"農純郷奶香野菇起司炖饭", price:128, brand:"農純郷", image:"宝宝辅食/農純郷奶香野菇起司炖饭.jpg", desc:"" },
-  { id:37, category:"宝宝辅食", name:"農純郷玉米咕咕烩面", price:135, brand:"農純郷", image:"宝宝辅食/農純郷玉米咕咕烩面.jpg", desc:"" },
-  { id:38, category:"宝宝辅食", name:"農純郷番茄猪猪烩面", price:135, brand:"農純郷", image:"宝宝辅食/農純郷番茄猪猪烩面.jpg", desc:"" },
-  { id:39, category:"宝宝辅食", name:"Gerber 婴幼儿米粉三段香蕉草莓燕麦米粉", price:70, brand:"Gerber", image:"宝宝辅食/Gerber 婴幼儿米粉三段香蕉草莓燕麦米粉.jpg", desc:"" },
-  { id:40, category:"宝宝辅食", name:"Gerber 婴幼儿米粉一段纯大米米粉", price:60, brand:"Gerber", image:"宝宝辅食/Gerber 婴幼儿米粉一段纯大米米粉.jpg", desc:"" },
-  { id:41, category:"宝宝辅食", name:"Hungry Tiger 宝宝面条（蔬菜味）", price:52, brand:"Hungry", image:"宝宝辅食/Hungry Tiger 宝宝面条（蔬菜味）.jpg", desc:"" },
-  { id:42, category:"宝宝辅食", name:"Hungry Tiger 宝宝面条（西兰花味）", price:52, brand:"Hungry", image:"宝宝辅食/Hungry Tiger 宝宝面条（西兰花味）.jpg", desc:"" },
-  { id:43, category:"宝宝辅食", name:"Hungry Tiger 宝宝面条（菠菜味）", price:52, brand:"Hungry", image:"宝宝辅食/Hungry Tiger 宝宝面条（菠菜味）.jpg", desc:"" },
-  { id:44, category:"宝宝辅食", name:"Hungry Tiger 宝宝面条（胡萝卜味）", price:52, brand:"Hungry", image:"宝宝辅食/Hungry Tiger 宝宝面条（胡萝卜味）.jpg", desc:"" },
-  { id:45, category:"宝宝辅食", name:"Hungry Tiger 宝宝面条（番茄味）", price:52, brand:"Hungry", image:"宝宝辅食/Hungry Tiger 宝宝面条（番茄味）.jpg", desc:"" },
-  { id:46, category:"宝宝辅食", name:"Ella's Kitchen 婴幼儿辅食肉泥（鸡肉烤蔬菜）", price:39, brand:"Ella's Kitchen", image:"宝宝辅食/Ella's Kitchen 婴幼儿辅食肉泥（鸡肉烤蔬菜）.jpg", desc:"" },
-  { id:47, category:"宝宝辅食", name:"Ella's Kitchen 婴幼儿辅食肉泥（牛肉炖薯仔）", price:39, brand:"Ella's Kitchen", image:"宝宝辅食/Ella's Kitchen 婴幼儿辅食肉泥（牛肉炖薯仔）.jpg", desc:"" },
-  { id:48, category:"宝宝辅食", name:"Ella's Kitchen 婴幼儿辅食肉泥（鸡肉炖饭）", price:39, brand:"Ella's Kitchen", image:"宝宝辅食/Ella's Kitchen 婴幼儿辅食肉泥（鸡肉炖饭）.jpg", desc:"" },
-  { id:49, category:"宝宝辅食", name:"Olidi 牛油果油喷雾", price:103, brand:"Olidi", image:"宝宝辅食/Olidi 牛油果油喷雾.jpg", desc:"" },
-  { id:50, category:"宝宝辅食", name:"Olidi 亚麻籽油喷雾", price:103, brand:"Olidi", image:"宝宝辅食/Olidi 亚麻籽油喷雾.jpg", desc:"" },
-  { id:51, category:"宝宝辅食", name:"VivoSpray 特级初榨橄榄油喷雾", price:63, brand:"VivoSpray", image:"宝宝辅食/VivoSpray 特级初榨橄榄油喷雾.jpg", desc:"" },
-  { id:52, category:"宝宝辅食", name:"贝亲 辅食餐包鲑鱼蔬菜烩饭", price:19, brand:"贝亲", image:"宝宝辅食/贝亲 辅食餐包鲑鱼蔬菜烩饭.jpg", desc:"" },
-  { id:53, category:"宝宝辅食", name:"贝亲 辅食餐包金枪鱼蚕豆杂菜", price:19, brand:"贝亲", image:"宝宝辅食/贝亲 辅食餐包金枪鱼蚕豆杂菜.jpg", desc:"" },
-  { id:54, category:"宝宝辅食", name:"贝亲 辅食餐包牛肉蘑菇炖饭", price:19, brand:"贝亲", image:"宝宝辅食/贝亲 辅食餐包牛肉蘑菇炖饭.jpg", desc:"" },
-  { id:55, category:"宝宝辅食", name:"贝亲 辅食餐包鲷鱼番茄意式烩饭", price:19, brand:"贝亲", image:"宝宝辅食/贝亲 辅食餐包鲷鱼番茄意式烩饭.jpg", desc:"" },
-  { id:56, category:"宝宝辅食", name:"贝亲 辅食餐包彩蔬牛肉炖菜", price:19, brand:"贝亲", image:"宝宝辅食/贝亲 辅食餐包彩蔬牛肉炖菜.jpg", desc:"" },
-  { id:57, category:"宝宝辅食", name:"宝宝百味即食粥唧唧装4袋（红豆红枣）", price:85, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥唧唧装4袋（红豆红枣）.jpg", desc:"" },
-  { id:58, category:"宝宝辅食", name:"宝宝百味即食粥唧唧装4袋（水梨银耳）", price:85, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥唧唧装4袋（水梨银耳）.jpg", desc:"" },
-  { id:59, category:"宝宝辅食", name:"宝宝百味即食粥唧唧装4袋（红菜头小米）", price:85, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥唧唧装4袋（红菜头小米）.jpg", desc:"" },
-  { id:60, category:"宝宝辅食", name:"宝宝百味即食粥唧唧装4袋（苹果提子）", price:85, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥唧唧装4袋（苹果提子）.jpg", desc:"" },
-  { id:61, category:"宝宝辅食", name:"HiPP有机婴儿纯米糊", price:58, brand:"HiPP", image:"宝宝辅食/HiPP有机婴儿纯米糊.jpg", desc:"" },
-  { id:62, category:"宝宝护理", name:"丝塔芙大白罐 宝宝版", price:149, brand:"丝塔芙", image:"宝宝护理/丝塔芙大白罐 宝宝版.jpg", desc:"" , isHot:true},
-  { id:63, category:"宝宝护理", name:"丝塔芙婴儿湿疹版润肤霜", price:219, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿湿疹版润肤霜.jpg", desc:"" , isHot:true},
-  { id:64, category:"宝宝护理", name:"尚护健通鼻贴", price:45, brand:"尚护健", image:"宝宝护理/尚护健通鼻贴.jpg", desc:"" , isHot:true},
-  { id:65, category:"宝宝护理", name:"尚护健通鼻贴升级版", price:49, brand:"尚护健", image:"宝宝护理/尚护健通鼻贴升级版.jpg", desc:"" },
-  { id:66, category:"宝宝护理", name:"丝塔芙婴幼儿保湿低敏防晒乳", price:129, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴幼儿保湿低敏防晒乳.jpg", desc:"" },
-  { id:67, category:"宝宝护理", name:"珮夫人通鼻贴 7片", price:45, brand:"珮夫人", image:"宝宝护理/珮夫人通鼻贴 7片.jpg", desc:"" },
-  { id:68, category:"宝宝护理", name:"Vicks 婴幼儿舒缓通鼻膏50克", price:49, brand:"Vicks", image:"宝宝护理/Vicks 婴幼儿舒缓通鼻膏50克.jpg", desc:"" },
-  { id:69, category:"宝宝护理", name:"尚护健呼吸道舒缓软膏50g", price:58, brand:"尚护健", image:"宝宝护理/尚护健呼吸道舒缓软膏50g.jpg", desc:"" },
-  { id:70, category:"宝宝护理", name:"天然疗妥修复湿疹膏 /热疹膏", price:209, brand:"天然疗妥", image:"宝宝护理/天然疗妥修复湿疹膏 热疹膏.jpg", desc:"" },
-  { id:71, category:"宝宝护理", name:"天然疗妥止痒消肿膏60ml", price:199, brand:"天然疗妥", image:"宝宝护理/天然疗妥止痒消肿膏60ml.jpg", desc:"" },
-  { id:72, category:"宝宝护理", name:"Mamakids婴幼儿防晒", price:200, brand:"Mamakids", image:"宝宝护理/Mamakids婴幼儿防晒.jpg", desc:"" },
-  { id:73, category:"宝宝护理", name:"花王碧柔儿童物理防晒", price:70, brand:"花王", image:"宝宝护理/花王碧柔儿童物理防晒.jpg", desc:"" },
-  { id:74, category:"宝宝护理", name:"KissME无添加儿童防晒", price:55, brand:"KissME", image:"宝宝护理/KissME无添加儿童防晒.jpg", desc:"" },
-  { id:75, category:"宝宝护理", name:"丝塔芙婴儿舒缓保湿面霜", price:99, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿舒缓保湿霜.jpg", desc:"" },
-  { id:76, category:"宝宝护理", name:"丝塔芙婴儿金盏花二合一洗发沐浴露", price:109, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿金盏花二合一洗发沐浴露.jpg", desc:"" },
-  { id:77, category:"宝宝护理", name:"丝塔芙婴儿湿疹版沐浴霜", price:219, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿湿疹版沐浴霜.jpg", desc:"" },
-  { id:78, category:"宝宝护理", name:"丝塔芙婴儿日常润肤乳按压版", price:109, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿日常润肤乳按压版.jpg", desc:"" },
-  { id:79, category:"宝宝护理", name:"丝塔芙婴儿润肤乳液（237ml）", price:106, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿润肤乳液（237ml）.jpg", desc:"" },
-  { id:80, category:"宝宝护理", name:"丝塔芙婴儿润肤膏（100ml×2）", price:136, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿润肤膏（100ml×2）.jpg", desc:"" },
-  { id:81, category:"宝宝护理", name:"施巴婴儿面霜", price:145, brand:"施巴", image:"宝宝护理/施巴婴儿面霜.jpg", desc:"" },
-  { id:82, category:"宝宝护理", name:"施巴润肤乳", price:120, brand:"施巴", image:"宝宝护理/施巴润肤乳.jpg", desc:"" },
-  { id:83, category:"宝宝护理", name:"丝塔芙婴儿保湿沐浴露", price:79, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿保湿沐浴露.jpg", desc:"" },
-  { id:84, category:"宝宝护理", name:"丝塔芙婴儿洗发水", price:79, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿洗发水.jpg", desc:"" },
-  { id:85, category:"宝宝护理", name:"加州宝宝金盏花泡泡浴液", price:100, brand:"加州宝宝", image:"宝宝护理/加州宝宝金盏花泡泡浴液.jpg", desc:"" },
-  { id:86, category:"宝宝护理", name:"妙思乐冷霜滋养身体乳", price:140, brand:"妙思乐", image:"宝宝护理/妙思乐冷霜滋养身体乳.jpg", desc:"" },
-  { id:87, category:"宝宝护理", name:"丝塔芙婴儿套装（400ml乳液+洗发沐浴50ml）", price:119, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿套装（400ml乳液+洗发沐浴50ml）.jpg", desc:"" },
-  { id:88, category:"宝宝护理", name:"丝塔芙婴儿套装（400ml洗发沐浴+乳液50ml）", price:119, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿套装（400ml洗发沐浴+乳液50ml）.jpg", desc:"" },
-  { id:89, category:"宝宝零食", name:"Bebefood宝宝海苔", price:32, brand:"Bebefood", image:"宝宝零食/Bebefood宝宝海苔.jpg", desc:"" , isHot:true},
-  { id:90, category:"宝宝零食", name:"renewallife有机苹果米饼", price:32, brand:"renewallife", image:"宝宝零食/renewallife有机苹果米饼.jpg", desc:"" , isHot:true},
-  { id:91, category:"宝宝零食", name:"宝宝百味有机波波米（芝士味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（芝士味）.jpg", desc:"" },
-  { id:92, category:"宝宝零食", name:"宝宝百味有机波波米（草莓味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（草莓味）.jpg", desc:"" },
-  { id:93, category:"宝宝零食", name:"宝宝百味有机波波米（蓝莓味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（蓝莓味）.jpg", desc:"" },
-  { id:94, category:"宝宝零食", name:"宝宝百味有机波波米（香蕉味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（香蕉味）.jpg", desc:"" },
-  { id:95, category:"宝宝零食", name:"ILDONG香蕉磨牙棒", price:36, brand:"ILDONG", image:"宝宝零食/ILDONG香蕉磨牙棒.jpg", desc:"" , isHot:true},
-  { id:96, category:"宝宝零食", name:"Bebefood米饼（红薯味）", price:48, brand:"Bebefood", image:"宝宝零食/Bebefood米饼（红薯味）.jpg", desc:"" },
-  { id:97, category:"宝宝零食", name:"Bebefood米饼（苹果味）", price:48, brand:"Bebefood", image:"宝宝零食/Bebefood米饼（苹果味）.jpg", desc:"" },
-  { id:98, category:"宝宝零食", name:"renewallife米饼南瓜味", price:32, brand:"renewallife", image:"宝宝零食/renewallife米饼南瓜味.jpg", desc:"" },
-  { id:99, category:"宝宝零食", name:"renewallife米饼红薯味", price:32, brand:"renewallife", image:"宝宝零食/renewallife米饼红薯味.jpg", desc:"" },
-  { id:100, category:"宝宝零食", name:"NOBI磨牙米饼（红薯味）", price:28, brand:"NOBI", image:"宝宝零食/NOBI磨牙米饼（红薯味）.jpg", desc:"" },
-  { id:101, category:"宝宝零食", name:"NOBI磨牙米饼（蓝莓味）", price:28, brand:"NOBI", image:"宝宝零食/NOBI磨牙米饼（蓝莓味）.jpg", desc:"" },
-  { id:102, category:"宝宝零食", name:"NOBI婴幼儿有机椰子卷", price:25, brand:"NOBI", image:"宝宝零食/NOBI婴幼儿有机椰子卷.jpg", desc:"" },
-  { id:103, category:"宝宝零食", name:"宝宝百味草莓紫米胚芽米饼", price:59, brand:"宝宝百味", image:"宝宝零食/宝宝百味草莓紫米胚芽米饼.jpg", desc:"" },
-  { id:104, category:"宝宝零食", name:"宝宝百味有机野菜胚芽米饼", price:59, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机野菜胚芽米饼.jpg", desc:"" },
-  { id:105, category:"宝宝零食", name:"宝宝百味婴幼儿低钠紫菜", price:70, brand:"宝宝百味", image:"宝宝零食/宝宝百味婴幼儿低钠紫菜.jpg", desc:"" },
-  { id:106, category:"宝宝零食", name:"ILDONG香蕉泡芙", price:39, brand:"ILDONG", image:"宝宝零食/ILDONG香蕉泡芙.jpg", desc:"" },
-  { id:107, category:"宝宝零食", name:"BEBECOOK蓝莓香蕉磨牙棒", price:46, brand:"BEBECOOK蓝莓香蕉磨牙棒", image:"宝宝零食/BEBECOOK蓝莓香蕉磨牙棒.jpg", desc:"" },
-  { id:108, category:"宝宝零食", name:"renewallife有机香蕉米饼", price:32, brand:"renewallife", image:"宝宝零食/renewallife有机香蕉米饼.jpg", desc:"" },
-  { id:109, category:"宝宝零食", name:"renewallife米条苹果香蕉味", price:32, brand:"renewallife", image:"宝宝零食/renewallife米条苹果香蕉味.jpg", desc:"" },
-  { id:110, category:"宝宝零食", name:"renewallife五谷米条南瓜味", price:32, brand:"renewallife", image:"宝宝零食/renewallife五谷米条南瓜味.jpg", desc:"" },
-  { id:111, category:"宝宝零食", name:"renewallife五谷米条蔬菜味", price:32, brand:"renewallife", image:"宝宝零食/renewallife五谷米条蔬菜味.jpg", desc:"" },
-  { id:112, category:"宝宝零食", name:"renewallife五谷米条紫薯味", price:32, brand:"renewallife", image:"宝宝零食/renewallife五谷米条紫薯味.jpg", desc:"" },
-  { id:113, category:"宝宝零食", name:"renewallife糙米条综合莓果味", price:32, brand:"renewallife", image:"宝宝零食/renewallife糙米条综合莓果味.jpg", desc:"" },
-  { id:114, category:"宝宝零食", name:"renewallife糙米条蔬菜味", price:32, brand:"renewallife", image:"宝宝零食/renewallife糙米条蔬菜味.jpg", desc:"" },
-  { id:115, category:"宝宝零食", name:"宝宝百味波波米苹果胡萝卜", price:42, brand:"宝宝百味", image:"宝宝零食/宝宝百味波波米苹果胡萝卜.jpg", desc:"" },
-  { id:116, category:"宝宝零食", name:"宝宝百味波波米可可味", price:42, brand:"宝宝百味", image:"宝宝零食/宝宝百味波波米可可味.jpg", desc:"" },
-  { id:117, category:"宝宝零食", name:"宝宝百味波波米糙米味", price:42, brand:"宝宝百味", image:"宝宝零食/宝宝百味波波米糙米味.jpg", desc:"" },
-  { id:118, category:"宝宝零食", name:"宝宝百味南瓜藜麦胚芽米饼", price:59, brand:"宝宝百味", image:"宝宝零食/宝宝百味南瓜藜麦胚芽米饼.jpg", desc:"" },
-  { id:119, category:"宝宝零食", name:"Wel-B 婴幼儿酸奶溶豆（苹果味）", price:93, brand:"Wel-B", image:"宝宝零食/Wel-B 婴幼儿酸奶溶豆（苹果味）.jpg", desc:"" },
-  { id:120, category:"宝宝零食", name:"Wel-B 婴幼儿酸奶溶豆（混合莓果味）", price:93, brand:"Wel-B", image:"宝宝零食/Wel-B 婴幼儿酸奶溶豆（混合莓果味）.jpg", desc:"" },
-  { id:121, category:"宝宝零食", name:"Wel-B 婴幼儿酸奶溶豆（草莓味）", price:93, brand:"Wel-B", image:"宝宝零食/Wel-B 婴幼儿酸奶溶豆（草莓味）.jpg", desc:"" },
-  { id:122, category:"宝宝零食", name:"Apple Monkey 有机米饼（草莓香蕉味）", price:48, brand:"Apple", image:"宝宝零食/Apple Monkey 有机米饼（草莓香蕉味）.jpg", desc:"" },
-  { id:123, category:"宝宝零食", name:"Apple Monkey 有机米饼（菠菜味）", price:48, brand:"Apple", image:"宝宝零食/Apple Monkey 有机米饼（菠菜味）.jpg", desc:"" },
-  { id:124, category:"宝宝零食", name:"Apple Monkey 有机米饼（红薯味）", price:48, brand:"Apple", image:"宝宝零食/Apple Monkey 有机米饼（红薯味）.jpg", desc:"" },
-  { id:125, category:"宝宝零食", name:"Apple Monkey 有机米饼（蓝莓草莓味）", price:48, brand:"Apple", image:"宝宝零食/Apple Monkey 有机米饼（蓝莓草莓味）.jpg", desc:"" },
-  { id:126, category:"宝宝零食", name:"Apple Monkey 有机米饼（南瓜味）", price:48, brand:"Apple", image:"宝宝零食/Apple Monkey 有机米饼（南瓜味）.jpg", desc:"" },
-  { id:127, category:"宝宝零食", name:"Little Bellies 有机动物造型饼干", price:48, brand:"Little", image:"宝宝零食/Little Bellies 有机动物造型饼干.jpg", desc:"" },
-  { id:128, category:"宝宝零食", name:"Little Bellies 有机蓝莓味泡芙", price:23, brand:"Little", image:"宝宝零食/Little Bellies 有机蓝莓味泡芙.jpg", desc:"" },
-  { id:129, category:"宝宝零食", name:"Little Bellies 有机香蕉味软玉米条", price:23, brand:"Little", image:"宝宝零食/Little Bellies 有机香蕉味软玉米条.jpg", desc:"" },
-  { id:130, category:"宝宝零食", name:"森永（Morinaga）婴幼儿营养饼干", price:15, brand:"森永", image:"宝宝零食/森永（Morinaga）婴幼儿营养饼干.jpg", desc:"" },
-  { id:131, category:"宝宝零食", name:"BeanStalk 乳酸菌小馒头", price:26, brand:"BeanStalk", image:"宝宝零食/BeanStalk 乳酸菌小馒头.jpg", desc:"" },
-  { id:132, category:"宝宝零食", name:"和光堂高钙芝士饼干棒（9月+）", price:25, brand:"和光堂", image:"宝宝零食/和光堂高钙芝士饼干棒（9月+）.jpg", desc:"" },
-  { id:133, category:"宝宝零食", name:"和光堂高钙高钙鸡蛋小馒头（7月+）", price:25, brand:"和光堂", image:"宝宝零食/和光堂高钙高钙鸡蛋小馒头（7月+）.jpg", desc:"" },
-  { id:134, category:"宝宝零食", name:"Calcket 高钙小馒头", price:25, brand:"Calcket", image:"宝宝零食/Calcket 高钙小馒头.jpg", desc:"" },
-  { id:135, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥120g（蓝莓苹果香蕉）", price:29, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥120g（蓝莓苹果香蕉）.jpg", desc:"" },
-  { id:136, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥70g（苹果）", price:24, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥70g（苹果）.jpg", desc:"" },
-  { id:137, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥70g（梨子）", price:24, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥70g（梨子）.jpg", desc:"" },
-  { id:138, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥70g（西梅）", price:24, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥70g（西梅）.jpg", desc:"" },
-  { id:139, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥120g（西蓝花青豆梨）", price:29, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥120g（西蓝花青豆梨）.jpg", desc:"" },
-  { id:140, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥90g（白色水果）", price:25, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥90g（混合水果）.jpg", desc:"" },
-  { id:141, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥90g（粉色水果）", price:25, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥90g（粉色水果）.jpg", desc:"" },
-  { id:142, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥90g（红色水果）", price:25, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥90g（红色水果）.jpg", desc:"" },
-  { id:143, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥90g（黄色水果）", price:25, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥90g（黄色水果）.jpg", desc:"" },
-  { id:144, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥90g（紫色水果）", price:25, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥90g（紫色水果）.jpg", desc:"" },
-  { id:145, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥90g（绿色水果）", price:25, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥90g（绿色水果）.jpg", desc:"" },
-  { id:146, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥120g（胡萝卜苹果芹菜萝卜）", price:29, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥120g（胡萝卜苹果芹菜萝卜）.jpg", desc:"" },
-  { id:147, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥120g（草莓苹果）", price:29, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥120g（草莓苹果）.jpg", desc:"" },
-  { id:148, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥120g（番薯南瓜蓝莓）", price:29, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥120g（番薯南瓜蓝莓）.jpg", desc:"" },
-  { id:149, category:"宝宝零食", name:"Ella's Kitchen 婴幼儿果泥70g（香桃）", price:24, brand:"Ella's Kitchen", image:"宝宝零食/Ella's Kitchen 婴幼儿果泥70g（香桃）.jpg", desc:"" },
-  { id:150, category:"宝宝零食", name:"Ivenet谷物夹心棒（蓝莓味）", price:39, brand:"Ivenet", image:"宝宝零食/Ivenet谷物夹心棒（蓝莓味）.jpg", desc:"" },
-  { id:151, category:"宝宝零食", name:"HappyBABY芒果南瓜味磨牙脆饼", price:80, brand:"HappyBABY", image:"宝宝零食/HappyBABY芒果南瓜味磨牙脆饼.jpg", desc:"" },
-  { id:152, category:"宝宝零食", name:"HappyBABY草莓甜菜味磨牙脆饼", price:80, brand:"HappyBABY", image:"宝宝零食/HappyBABY草莓甜菜味磨牙脆饼.jpg", desc:"" },
-  { id:153, category:"宝宝零食", name:"HappyBABY蓝莓紫胡萝卜味磨牙米饼", price:80, brand:"HappyBABY", image:"宝宝零食/HappyBABY蓝莓紫胡萝卜味磨牙米饼.jpg", desc:"" },
-  { id:154, category:"宝宝玩具", name:"VTECH学习机1", price:259, brand:"VTECH", image:"宝宝玩具/VTECH学习机1.jpg", desc:"" },
-  { id:155, category:"宝宝玩具", name:"VTECH学习机2", price:259, brand:"VTECH", image:"宝宝玩具/VTECH学习机2.jpg", desc:"" },
-  { id:156, category:"宝宝玩具", name:"VTECH 字母拼读早教巴士玩具", price:299, brand:"VTECH", image:"宝宝玩具/VTECH 字母拼读早教巴士玩具.jpg", desc:"" },
-  { id:157, category:"宝宝玩具", name:"VTECH 三合一赛车方向盘早教玩具", price:329, brand:"VTECH", image:"宝宝玩具/VTECH 三合一赛车方向盘早教玩具.jpg", desc:"" },
-  { id:158, category:"宝宝玩具", name:"VTECH 儿童 DJ 打碟混音台玩具", price:619, brand:"VTECH", image:"宝宝玩具/VTECH 儿童 DJ 打碟混音台玩具.jpg", desc:"" },
-  { id:159, category:"宝宝玩具", name:"Janod 法国磁力拼拼书", price:196, brand:"Janod", image:"宝宝玩具/Janod 法国磁力拼拼书.jpg", desc:"" },
-  { id:160, category:"宝宝玩具", name:"面包超人方向盘", price:299, brand:"面包超人", image:"宝宝玩具/面包超人方向盘.jpg", desc:"" },
-  { id:161, category:"宝宝玩具", name:"LeapFrog 仿真吸尘机早教玩具", price:330, brand:"LeapFrog", image:"宝宝玩具/LeapFrog 仿真吸尘机早教玩具.jpg", desc:"" },
-  { id:162, category:"宝宝玩具", name:"Magna-Tiles 迷你便携磁力片1", price:173, brand:"Magna-Tiles", image:"宝宝玩具/Magna-Tiles 迷你便携磁力片1.jpg", desc:"" },
-  { id:163, category:"宝宝玩具", name:"Magna-Tiles 迷你便携磁力片2", price:173, brand:"Magna-Tiles", image:"宝宝玩具/Magna-Tiles 迷你便携磁力片2.jpg", desc:"" },
-  { id:164, category:"宝宝玩具", name:"面包超人婴儿手摇铃沙锤", price:53, brand:"面包超人", image:"宝宝玩具/面包超人婴儿手摇铃沙锤.jpg", desc:"" },
-  { id:165, category:"宝宝玩具", name:"面包超人仿真电动出水洗手台", price:353, brand:"面包超人", image:"宝宝玩具/面包超人仿真电动出水洗手台.jpg", desc:"" },
-  { id:166, category:"宝宝玩具", name:"面包超人育脑形状解锁屋", price:365, brand:"面包超人", image:"宝宝玩具/面包超人育脑形状解锁屋.jpg", desc:"" },
-  { id:167, category:"宝宝用品", name:"NUK 婴儿乳牙训练牙刷套装（6个月）", price:64, brand:"NUK", image:"宝宝用品/NUK 婴儿乳牙训练牙刷套装（6个月）.jpg", desc:"" },
-  { id:168, category:"宝宝用品", name:"NUK 婴儿乳牙训练牙刷套装（12个月）", price:53, brand:"NUK", image:"宝宝用品/NUK 婴儿乳牙训练牙刷套装（12个月）.jpg", desc:"" },
-  { id:169, category:"宝宝用品", name:"面包超人搓澡巾", price:35, brand:"面包超人", image:"宝宝用品/面包超人搓澡巾.jpg", desc:"" },
-  { id:170, category:"宝宝用品", name:"b.box 婴幼儿学饮杯（鸭嘴杯款）", price:112, brand:"b.box", image:"宝宝用品/b.box 婴幼儿学饮杯（鸭嘴杯款）.jpg", desc:"" },
-  { id:171, category:"宝宝用品", name:"b.box 经典重力球吸管学饮杯", price:112, brand:"b.box", image:"宝宝用品/b.box 经典重力球吸管学饮杯.jpg", desc:"" },
-  { id:172, category:"宝宝用品", name:"b.box 经典重力球吸管学饮杯（迪士尼冰雪奇缘联名款）", price:133, brand:"b.box", image:"宝宝用品/b.box 经典重力球吸管学饮杯（迪士尼冰雪奇缘联名款）.jpg", desc:"" },
-  { id:173, category:"宝宝用品", name:"b.box PPSU重力球吸管杯", price:175, brand:"b.box", image:"宝宝用品/b.box PPSU重力球吸管杯.jpg", desc:"" },
-  { id:174, category:"宝宝用品", name:"狮王儿童牙膏", price:18, brand:"狮王", image:"宝宝用品/狮王儿童牙膏.jpg", desc:"" },
-  { id:175, category:"宝宝用品", name:"花王儿童牙膏", price:18, brand:"花王", image:"宝宝用品/花王儿童牙膏.jpg", desc:"" },
-  { id:176, category:"宝宝用品", name:"面包超人儿童牙膏", price:18, brand:"面包超人", image:"宝宝用品/面包超人儿童牙膏.jpg", desc:"" },
-  { id:177, category:"宝宝用品", name:"巧虎儿童牙膏", price:16, brand:"巧虎儿童牙膏", image:"宝宝用品/巧虎儿童牙膏.jpg", desc:"" },
-  { id:178, category:"宝宝用品", name:"和光堂360°宝宝训练牙刷", price:97, brand:"和光堂", image:"宝宝用品/和光堂360°宝宝训练牙刷.jpg", desc:"" },
-  { id:179, category:"保健类", name:"Schiff MoveFree益节4合1氨糖软骨素（80粒）", price:170, brand:"Schiff", image:"保健类/Schiff MoveFree益节4合1氨糖软骨素（80粒）.jpg", desc:"" },
-  { id:180, category:"保健类", name:"Schiff MoveFree益节5合1氨糖软骨素（120粒）", price:240, brand:"Schiff", image:"保健类/Schiff MoveFree益节5合1氨糖软骨素（120粒）.jpg", desc:"" },
-  { id:181, category:"保健类", name:"GNC儿童DHA软糖", price:162, brand:"GNC", image:"保健类/GNC儿童DHA软糖.jpg", desc:"" },
-  { id:182, category:"保健类", name:"CATALO儿童DHA活脑补眼", price:269, brand:"CATALO", image:"保健类/CATALO儿童DHA活脑补眼.jpg", desc:"" },
-  { id:183, category:"保健类", name:"CATALO儿童牛奶钙加锌成长", price:418, brand:"CATALO", image:"保健类/CATALO儿童牛奶钙加锌成长.jpg", desc:"" },
-  { id:184, category:"保健类", name:"CATALO儿童牛初乳强健配方", price:398, brand:"CATALO", image:"保健类/CATALO儿童牛初乳强健配方.jpg", desc:"" },
-  { id:185, category:"保健类", name:"衍生精装儿童七星茶颗粒冲剂", price:77, brand:"衍生", image:"保健类/衍生精装七星茶颗粒冲剂.jpg", desc:"" },
-  { id:186, category:"保健类", name:"余仁生儿童七星茶", price:90, brand:"余仁生", image:"保健类/余仁生儿童七星茶.jpg", desc:"" },
-  { id:187, category:"保健类", name:"衍生儿童枇杷雪梨蜜", price:95, brand:"衍生", image:"保健类/衍生儿童枇杷雪梨蜜.jpg", desc:"" },
-  { id:188, category:"保健类", name:"Swisse 高强度无腥味野生鱼油", price:150, brand:"Swisse", image:"保健类/Swisse 高强度无腥味野生鱼油.jpg", desc:"" },
-  { id:189, category:"保健类", name:"Holdbody 儿童DHA", price:246, brand:"Holdbody", image:"保健类/Holdbody 儿童DHA.jpg", desc:"" },
-  { id:190, category:"保健类", name:"Holdbody 儿童智专注", price:255, brand:"Holdbody", image:"保健类/Holdbody 儿童智专注.jpg", desc:"" },
-  { id:191, category:"保健类", name:"Holdbody 超级天然钙", price:246, brand:"Holdbody", image:"保健类/Holdbody 超级天然钙.jpg", desc:"" },
-  { id:192, category:"保健类", name:"Holdbody 天然孕妇钙", price:246, brand:"Holdbody", image:"保健类/Holdbody 天然孕妇钙.jpg", desc:"" },
-  { id:193, category:"成人护理", name:"丝塔芙成人湿疹润肤霜", price:219, brand:"丝塔芙", image:"成人护理/丝塔芙成人湿疹润肤霜.jpg", desc:"" },
-  { id:194, category:"成人护理", name:"卡麦8粒装（粉卡）", price:850, brand:"卡麦8粒装（粉卡）", image:"成人护理/卡麦8粒装（粉卡）.jpg", desc:"" },
-  { id:195, category:"成人护理", name:"卡麦8粒装（蓝卡）", price:680, brand:"卡麦8粒装（蓝卡）", image:"成人护理/卡麦8粒装（蓝卡）.jpg", desc:"" },
-  { id:196, category:"成人护理", name:"黑人抗敏感亮白牙膏", price:10, brand:"黑人", image:"成人护理/黑人抗敏感亮白牙膏.jpg", desc:"" },
-  { id:197, category:"成人护理", name:"丝塔芙成人大白罐", price:90, brand:"丝塔芙", image:"成人护理/丝塔芙成人大白罐.jpg", desc:"" },
-  { id:198, category:"成人护理", name:"Neogence 无针水光维他命A紧致面膜", price:88, brand:"Neogence", image:"成人护理/Neogence 无针水光维他命A紧致面膜.jpg", desc:"" },
-  { id:199, category:"成人护理", name:"Neogence 无针水光维他命B保湿面膜", price:88, brand:"Neogence", image:"成人护理/Neogence 无针水光维他命B保湿面膜.jpg", desc:"" },
-  { id:200, category:"成人护理", name:"Neogence 无针水光维他命C美白面膜", price:88, brand:"Neogence", image:"成人护理/Neogence 无针水光维他命C美白面膜.jpg", desc:"" },
-  { id:201, category:"成人护理", name:"Neogence 超爆水清爽保湿面膜", price:88, brand:"Neogence", image:"成人护理/Neogence 超爆水清爽保湿面膜.jpg", desc:"" },
-  { id:202, category:"成人护理", name:"Neogence 超爆水透亮焕白面膜", price:88, brand:"Neogence", image:"成人护理/Neogence 超爆水透亮焕白面膜.jpg", desc:"" },
-  { id:203, category:"成人护理", name:"Neogence 超爆水润泽保湿面膜", price:88, brand:"Neogence", image:"成人护理/Neogence 超爆水润泽保湿面膜.jpg", desc:"" },
-  { id:204, category:"成人护理", name:"丝塔芙成人大白罐（500+250）", price:150, brand:"丝塔芙", image:"成人护理/丝塔芙成人大白罐（500+250）.jpg", desc:"" },
-  { id:205, category:"成人护理", name:"珂润润浸保湿泡沫洁面乳", price:70, brand:"珂润", image:"成人护理/珂润润浸保湿泡沫洁面乳.jpg", desc:"" },
-  { id:206, category:"夏日必备", name:"无比滴宝宝版", price:45, brand:"无比滴", image:"夏日必备/无比滴宝宝版.jpg", desc:"" },
-  { id:207, category:"夏日必备", name:"日本叮叮 驱蚊贴", price:38, brand:"日本叮叮", image:"夏日必备/日本叮叮 驱蚊贴.jpg", desc:"" },
-  { id:208, category:"夏日必备", name:"欧护防蚊喷雾儿童版59ml", price:45, brand:"欧护", image:"夏日必备/欧护防蚊喷雾儿童版59ml.jpg", desc:"" },
-  { id:209, category:"夏日必备", name:"欧护防蚊喷雾儿童版177ml", price:58, brand:"欧护", image:"夏日必备/欧护防蚊喷雾儿童版177ml.jpg", desc:"" , isHot:true},
-  { id:210, category:"夏日必备", name:"欧护防蚊喷雾成人版177ml", price:69, brand:"欧护", image:"夏日必备/欧护防蚊喷雾成人版177ml.jpg", desc:"" },
-  { id:211, category:"夏日必备", name:"eco.babe有机防蚊驱蚊喷雾225ml", price:219, brand:"eco.babe", image:"夏日必备/eco.babe有机防蚊驱蚊喷雾225ml.jpg", desc:"" , isHot:true},
-  { id:212, category:"夏日必备", name:"贝亲桃子水", price:39, brand:"贝亲", image:"夏日必备/贝亲桃子水.jpg", desc:"" },
-  { id:213, category:"夏日必备", name:"妥析呼吸道10合1流感检测试剂盒", price:72, brand:"妥析", image:"夏日必备/妥析呼吸道10合1流感检测试剂盒.jpg", desc:"" },
-  { id:214, category:"夏日必备", name:"妥析呼吸道6合1流感测试剂盒（儿童专用）", price:65, brand:"妥析", image:"夏日必备/妥析呼吸道6合1流感测试剂盒（儿童专用）.jpg", desc:"" },
-  { id:215, category:"夏日必备", name:"VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）", price:58, brand:"VAPE", image:"夏日必备/VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）.jpg", desc:"" , isHot:true},
-  { id:216, category:"夏日必备", name:"VAPE 天使宝宝驱蚊喷雾（60ml）", price:56, brand:"VAPE", image:"夏日必备/VAPE 天使宝宝驱蚊喷雾（60ml）.jpg", desc:"" },
-  { id:217, category:"夏日必备", name:"KINCHO 金鸟儿童驱蚊喷雾（无香款 200ml）", price:49, brand:"KINCHO", image:"夏日必备/KINCHO 金鸟儿童驱蚊喷雾（无香款 200ml）.jpg", desc:"" },
-  { id:218, category:"夏日必备", name:"VAPE 绿色经典驱蚊喷雾", price:35, brand:"VAPE", image:"夏日必备/VAPE 绿色经典驱蚊喷雾.jpg", desc:"" },
-  { id:219, category:"夏日必备", name:"日本叮叮止痒舒缓滚珠", price:49, brand:"日本叮叮", image:"夏日必备/日本叮叮止痒舒缓滚珠.jpg", desc:"" }
-];
-
-// ===================== 配置 =====================
+// ===================== CONFIG =====================
 const CONFIG = {
-  // Supabase 云数据库配置（订单实时同步，使用 REST API，无需 SDK）
   SUPABASE_URL: "https://ipcagqrvrrugcksfrpge.supabase.co",
   SUPABASE_KEY: "sb_publishable_vzzx53CSZnZeGkrJfiUYlw_0xmi32bO",
-  // 腾讯文档订单表格 spreadsheet token（填写后订单会自动写入）
-  TENCENT_DOC_TOKEN: "",
-  // 商家微信号或联系方式（显示在成功页面）
-  CONTACT_WECHAT: "",
 };
 
-// Supabase 客户端初始化
-// 使用 fetch 直接调用 Supabase REST API，无需 SDK
-
-// ===================== 类别配置 =====================
+const PRODUCTS = [
+  { id:1, category:'宝宝辅食', name:'Bebefood婴儿酱油', price:56, brand:'Bebefood', image:'宝宝辅食/Bebefood婴儿酱油.jpg', desc:'', isHot:true },
+  { id:2, category:'宝宝辅食', name:'Bebefood天然调味海盐', price:68, brand:'Bebefood', image:'宝宝辅食/Bebefood天然调味海盐.jpg', desc:'', isHot:true },
+  { id:3, category:'宝宝辅食', name:'小皮米粉', price:45, brand:'小皮', image:'宝宝辅食/小皮米粉.jpg', desc:'', isHot:false },
+  { id:4, category:'宝宝辅食', name:'宝宝百味有机胚芽米', price:58, brand:'宝宝百味', image:'宝宝辅食/宝宝百味有机胚芽米.jpg', desc:'', isHot:false },
+  { id:5, category:'宝宝辅食', name:'edisonmama乌冬面（蔬菜味）', price:39, brand:'edisonmama', image:'宝宝辅食/edisonmama乌冬面（蔬菜味）.jpg', desc:'', isHot:false },
+  { id:6, category:'宝宝辅食', name:'edisonmama乌冬面（原味）', price:39, brand:'edisonmama', image:'宝宝辅食/edisonmama乌冬面（原味）.jpg', desc:'', isHot:false },
+  { id:7, category:'宝宝辅食', name:'宝宝百味即食粥 苹果猪肉味', price:56, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 苹果猪肉味.jpg', desc:'', isHot:false },
+  { id:8, category:'宝宝辅食', name:'宝宝百味即食粥野菜鸡肉味', price:56, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥野菜鸡肉味.jpg', desc:'', isHot:false },
+  { id:9, category:'宝宝辅食', name:'宝宝百味即食粥 薯仔牛肉味', price:56, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 薯仔牛肉味.jpg', desc:'', isHot:false },
+  { id:10, category:'宝宝辅食', name:'宝宝百味即食粥昆布三文鱼', price:54, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥昆布三文鱼.jpg', desc:'', isHot:false },
+  { id:11, category:'宝宝辅食', name:'宝宝百味即食粥 菠菜虱目鱼', price:54, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 菠菜虱目鱼.jpg', desc:'', isHot:false },
+  { id:12, category:'宝宝辅食', name:'宝宝百味即食粥 干贝银鱼味', price:54, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 干贝银鱼味.jpg', desc:'', isHot:false },
+  { id:13, category:'宝宝辅食', name:'宝宝百味即食粥 南瓜鸡肉味', price:54, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 南瓜鸡肉味.jpg', desc:'', isHot:false },
+  { id:14, category:'宝宝辅食', name:'宝宝百味即食粥 豆腐猪肉味', price:62, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 豆腐猪肉味.jpg', desc:'', isHot:false },
+  { id:15, category:'宝宝辅食', name:'宝宝百味即食粥 香菇鸡肉味', price:62, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥 香菇鸡肉味.jpg', desc:'', isHot:false },
+  { id:16, category:'宝宝辅食', name:'宝宝百味字母粉 番茄肉沫味', price:54, brand:'宝宝百味', image:'宝宝辅食/宝宝百味字母粉 番茄肉沫味.jpg', desc:'', isHot:false },
+  { id:17, category:'宝宝辅食', name:'宝宝百味乌冬面 番茄牛肉味', price:62, brand:'宝宝百味', image:'宝宝辅食/宝宝百味乌冬面 番茄牛肉味.jpg', desc:'', isHot:false },
+  { id:18, category:'宝宝辅食', name:'農純郷即时粥牛牛壮壮粥', price:185, brand:'農純郷', image:'宝宝辅食/農純郷即时粥牛牛壮壮粥.jpg', desc:'', isHot:false },
+  { id:19, category:'宝宝辅食', name:'農純郷即时粥心干贝贝粥', price:165, brand:'農純郷', image:'宝宝辅食/農純郷即时粥心干贝贝粥.jpg', desc:'', isHot:false },
+  { id:20, category:'宝宝辅食', name:'農純郷即时粥蛤蜊咕咕粥', price:185, brand:'農純郷', image:'宝宝辅食/農純郷即时粥蛤蜊咕咕粥.jpg', desc:'', isHot:false },
+  { id:21, category:'宝宝辅食', name:'農純郷即时粥巧巧鲑鱼粥', price:185, brand:'農純郷', image:'宝宝辅食/農純郷即时粥巧巧鲑鱼粥.jpg', desc:'', isHot:false },
+  { id:22, category:'宝宝辅食', name:'農純郷即时粥鲍鲍南瓜粥', price:185, brand:'農純郷', image:'宝宝辅食/農純郷即时粥鲍鲍南瓜粥.jpg', desc:'', isHot:false },
+  { id:23, category:'宝宝辅食', name:'農純郷即时粥菠菠燕麦粥', price:135, brand:'農純郷', image:'宝宝辅食/農純郷即时粥菠菠燕麦粥.jpg', desc:'', isHot:false },
+  { id:24, category:'宝宝辅食', name:'農純郷即时粥鸡肉宝宝粥', price:165, brand:'農純郷', image:'宝宝辅食/農純郷即时粥鸡肉宝宝粥.jpg', desc:'', isHot:false },
+  { id:25, category:'宝宝辅食', name:'農純郷即时粥乖乖猪猪粥', price:165, brand:'農純郷', image:'宝宝辅食/農純郷即时粥乖乖猪猪粥.jpg', desc:'', isHot:false },
+  { id:26, category:'宝宝辅食', name:'農純郷即时粥虱目乐乐粥', price:185, brand:'農純郷', image:'宝宝辅食/農純郷即时粥虱目乐乐粥.jpg', desc:'', isHot:false },
+  { id:27, category:'宝宝辅食', name:'農純郷即时粥乖乖猪猪粥PLUS', price:198, brand:'農純郷', image:'宝宝辅食/農純郷即时粥乖乖猪猪粥PLUS.jpg', desc:'', isHot:false },
+  { id:28, category:'宝宝辅食', name:'農純郷即时粥鲈鱼暖暖粥PLUS', price:198, brand:'農純郷', image:'宝宝辅食/農純郷即时粥鲈鱼暖暖粥PLUS.jpg', desc:'', isHot:false },
+  { id:29, category:'宝宝辅食', name:'農純郷即时粥日日鸡肉粥PLUS', price:198, brand:'農純郷', image:'宝宝辅食/農純郷即时粥日日鸡肉粥PLUS.jpg', desc:'', isHot:false },
+  { id:30, category:'宝宝辅食', name:'農純郷即时粥心干贝贝粥PLUS', price:198, brand:'農純郷', image:'宝宝辅食/農純郷即时粥心干贝贝粥PLUS.jpg', desc:'', isHot:false },
+  { id:31, category:'宝宝辅食', name:'農純郷乖乖猪猪粥PLUSLarge', price:198, brand:'農純郷', image:'宝宝辅食/農純郷乖乖猪猪粥PLUSLarge.jpg', desc:'', isHot:false },
+  { id:32, category:'宝宝辅食', name:'農純郷日日鸡肉粥PLUSLarge', price:198, brand:'農純郷', image:'宝宝辅食/農純郷日日鸡肉粥PLUSLarge.jpg', desc:'', isHot:false },
+  { id:33, category:'宝宝辅食', name:'農純郷番茄起司海鲜炖饭', price:128, brand:'農純郷', image:'宝宝辅食/農純郷番茄起司海鲜炖饭.jpg', desc:'', isHot:false },
+  { id:34, category:'宝宝辅食', name:'農純郷龙胆石斑㦢瓜炖饭', price:128, brand:'農純郷', image:'宝宝辅食/農純郷龙胆石斑㦢瓜炖饭.jpg', desc:'', isHot:false },
+  { id:35, category:'宝宝辅食', name:'農純郷极上和牛藜麦炖饭', price:128, brand:'農純郷', image:'宝宝辅食/農純郷极上和牛藜麦炖饭.jpg', desc:'', isHot:false },
+  { id:36, category:'宝宝辅食', name:'農純郷奶香野菇起司炖饭', price:128, brand:'農純郷', image:'宝宝辅食/農純郷奶香野菇起司炖饭.jpg', desc:'', isHot:false },
+  { id:37, category:'宝宝辅食', name:'農純郷玉米咕咕烩面', price:135, brand:'農純郷', image:'宝宝辅食/農純郷玉米咕咕烩面.jpg', desc:'', isHot:false },
+  { id:38, category:'宝宝辅食', name:'農純郷番茄猪猪烩面', price:135, brand:'農純郷', image:'宝宝辅食/農純郷番茄猪猪烩面.jpg', desc:'', isHot:false },
+  { id:39, category:'宝宝辅食', name:'Gerber 婴幼儿米粉三段香蕉草莓燕麦米粉', price:70, brand:'Gerber', image:'宝宝辅食/Gerber 婴幼儿米粉三段香蕉草莓燕麦米粉.jpg', desc:'', isHot:false },
+  { id:40, category:'宝宝辅食', name:'Gerber 婴幼儿米粉一段纯大米米粉', price:60, brand:'Gerber', image:'宝宝辅食/Gerber 婴幼儿米粉一段纯大米米粉.jpg', desc:'', isHot:false },
+  { id:41, category:'宝宝辅食', name:'Hungry Tiger 宝宝面条（蔬菜味）', price:52, brand:'Hungry Tiger', image:'宝宝辅食/Hungry Tiger 宝宝面条（蔬菜味）.jpg', desc:'', isHot:false },
+  { id:42, category:'宝宝辅食', name:'Hungry Tiger 宝宝面条（西兰花味）', price:52, brand:'Hungry Tiger', image:'宝宝辅食/Hungry Tiger 宝宝面条（西兰花味）.jpg', desc:'', isHot:false },
+  { id:43, category:'宝宝辅食', name:'Hungry Tiger 宝宝面条（菠菜味）', price:52, brand:'Hungry Tiger', image:'宝宝辅食/Hungry Tiger 宝宝面条（菠菜味）.jpg', desc:'', isHot:false },
+  { id:44, category:'宝宝辅食', name:'Hungry Tiger 宝宝面条（胡萝卜味）', price:52, brand:'Hungry Tiger', image:'宝宝辅食/Hungry Tiger 宝宝面条（胡萝卜味）.jpg', desc:'', isHot:false },
+  { id:45, category:'宝宝辅食', name:'Hungry Tiger 宝宝面条（番茄味）', price:52, brand:'Hungry Tiger', image:'宝宝辅食/Hungry Tiger 宝宝面条（番茄味）.jpg', desc:'', isHot:false },
+  { id:46, category:'宝宝辅食', name:'Ella\'s Kitchen 婴幼儿辅食肉泥（鸡肉烤蔬菜）', price:39, brand:'Ella\'s Kitchen', image:'宝宝辅食/Ella\'s Kitchen 婴幼儿辅食肉泥（鸡肉烤蔬菜）.jpg', desc:'', isHot:false },
+  { id:47, category:'宝宝辅食', name:'Ella\'s Kitchen 婴幼儿辅食肉泥（牛肉炖薯仔）', price:39, brand:'Ella\'s Kitchen', image:'宝宝辅食/Ella\'s Kitchen 婴幼儿辅食肉泥（牛肉炖薯仔）.jpg', desc:'', isHot:false },
+  { id:48, category:'宝宝辅食', name:'Ella\'s Kitchen 婴幼儿辅食肉泥（鸡肉炖饭）', price:39, brand:'Ella\'s Kitchen', image:'宝宝辅食/Ella\'s Kitchen 婴幼儿辅食肉泥（鸡肉炖饭）.jpg', desc:'', isHot:false },
+  { id:49, category:'宝宝辅食', name:'Olidi 牛油果油喷雾', price:103, brand:'Olidi', image:'宝宝辅食/Olidi 牛油果油喷雾.jpg', desc:'', isHot:false },
+  { id:50, category:'宝宝辅食', name:'Olidi 亚麻籽油喷雾', price:103, brand:'Olidi', image:'宝宝辅食/Olidi 亚麻籽油喷雾.jpg', desc:'', isHot:false },
+  { id:51, category:'宝宝辅食', name:'VivoSpray 特级初榨橄榄油喷雾', price:63, brand:'VivoSpray', image:'宝宝辅食/VivoSpray 特级初榨橄榄油喷雾.jpg', desc:'', isHot:false },
+  { id:52, category:'宝宝辅食', name:'贝亲 辅食餐包鲑鱼蔬菜烩饭', price:19, brand:'贝亲', image:'宝宝辅食/贝亲 辅食餐包鲑鱼蔬菜烩饭.jpg', desc:'', isHot:false },
+  { id:53, category:'宝宝辅食', name:'贝亲 辅食餐包金枪鱼蚕豆杂菜', price:19, brand:'贝亲', image:'宝宝辅食/贝亲 辅食餐包金枪鱼蚕豆杂菜.jpg', desc:'', isHot:false },
+  { id:54, category:'宝宝辅食', name:'贝亲 辅食餐包牛肉蘑菇炖饭', price:19, brand:'贝亲', image:'宝宝辅食/贝亲 辅食餐包牛肉蘑菇炖饭.jpg', desc:'', isHot:false },
+  { id:55, category:'宝宝辅食', name:'贝亲 辅食餐包鲷鱼番茄意式烩饭', price:19, brand:'贝亲', image:'宝宝辅食/贝亲 辅食餐包鲷鱼番茄意式烩饭.jpg', desc:'', isHot:false },
+  { id:56, category:'宝宝辅食', name:'贝亲 辅食餐包彩蔬牛肉炖菜', price:19, brand:'贝亲', image:'宝宝辅食/贝亲 辅食餐包彩蔬牛肉炖菜.jpg', desc:'', isHot:false },
+  { id:57, category:'宝宝辅食', name:'宝宝百味即食粥唧唧装4袋（红豆红枣）', price:85, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥唧唧装4袋（红豆红枣）.jpg', desc:'', isHot:false },
+  { id:58, category:'宝宝辅食', name:'宝宝百味即食粥唧唧装4袋（水梨银耳）', price:85, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥唧唧装4袋（水梨银耳）.jpg', desc:'', isHot:false },
+  { id:59, category:'宝宝辅食', name:'宝宝百味即食粥唧唧装4袋（红菜头小米）', price:85, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥唧唧装4袋（红菜头小米）.jpg', desc:'', isHot:false },
+  { id:60, category:'宝宝辅食', name:'宝宝百味即食粥唧唧装4袋（苹果提子）', price:85, brand:'宝宝百味', image:'宝宝辅食/宝宝百味即食粥唧唧装4袋（苹果提子）.jpg', desc:'', isHot:false },
+  { id:61, category:'宝宝辅食', name:'HiPP有机婴儿纯米糊', price:58, brand:'HiPP', image:'宝宝辅食/HiPP有机婴儿纯米糊.jpg', desc:'', isHot:false },
+  { id:62, category:'宝宝护理', name:'丝塔芙大白罐 宝宝版', price:149, brand:'丝塔芙', image:'宝宝护理/丝塔芙大白罐 宝宝版.jpg', desc:'', isHot:true },
+  { id:63, category:'宝宝护理', name:'丝塔芙婴儿湿疹版润肤霜', price:219, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿湿疹版润肤霜.jpg', desc:'', isHot:true },
+  { id:64, category:'宝宝护理', name:'尚护健通鼻贴', price:45, brand:'尚护健', image:'宝宝护理/尚护健通鼻贴.jpg', desc:'', isHot:true },
+  { id:65, category:'宝宝护理', name:'尚护健通鼻贴升级版', price:49, brand:'尚护健', image:'宝宝护理/尚护健通鼻贴升级版.jpg', desc:'', isHot:false },
+  { id:66, category:'宝宝护理', name:'丝塔芙婴幼儿保湿低敏防晒乳', price:129, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴幼儿保湿低敏防晒乳.jpg', desc:'', isHot:false },
+  { id:67, category:'宝宝护理', name:'珮夫人通鼻贴 7片', price:45, brand:'珮夫人', image:'宝宝护理/珮夫人通鼻贴 7片.jpg', desc:'', isHot:false },
+  { id:68, category:'宝宝护理', name:'Vicks 婴幼儿舒缓通鼻膏50克', price:49, brand:'Vicks', image:'宝宝护理/Vicks 婴幼儿舒缓通鼻膏50克.jpg', desc:'', isHot:false },
+  { id:69, category:'宝宝护理', name:'尚护健呼吸道舒缓软膏50g', price:58, brand:'尚护健', image:'宝宝护理/尚护健呼吸道舒缓软膏50g.jpg', desc:'', isHot:false },
+  { id:70, category:'宝宝护理', name:'天然疗妥修复湿疹膏 /热疹膏', price:209, brand:'天然疗妥', image:'宝宝护理/天然疗妥修复湿疹膏 热疹膏.jpg', desc:'', isHot:false },
+  { id:71, category:'宝宝护理', name:'天然疗妥止痒消肿膏60ml', price:199, brand:'天然疗妥', image:'宝宝护理/天然疗妥止痒消肿膏60ml.jpg', desc:'', isHot:false },
+  { id:72, category:'宝宝护理', name:'Mamakids婴幼儿防晒', price:200, brand:'Mamakids', image:'宝宝护理/Mamakids婴幼儿防晒.jpg', desc:'', isHot:false },
+  { id:73, category:'宝宝护理', name:'花王碧柔儿童物理防晒', price:70, brand:'花王碧柔', image:'宝宝护理/花王碧柔儿童物理防晒.jpg', desc:'', isHot:false },
+  { id:74, category:'宝宝护理', name:'KissME无添加儿童防晒', price:55, brand:'KissME', image:'宝宝护理/KissME无添加儿童防晒.jpg', desc:'', isHot:false },
+  { id:75, category:'宝宝护理', name:'丝塔芙婴儿舒缓保湿面霜', price:99, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿舒缓保湿霜.jpg', desc:'', isHot:false },
+  { id:76, category:'宝宝护理', name:'丝塔芙婴儿金盏花二合一洗发沐浴露', price:109, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿金盏花二合一洗发沐浴露.jpg', desc:'', isHot:false },
+  { id:77, category:'宝宝护理', name:'丝塔芙婴儿湿疹版沐浴霜', price:219, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿湿疹版沐浴霜.jpg', desc:'', isHot:false },
+  { id:78, category:'宝宝护理', name:'丝塔芙婴儿日常润肤乳按压版', price:109, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿日常润肤乳按压版.jpg', desc:'', isHot:false },
+  { id:79, category:'宝宝护理', name:'丝塔芙婴儿润肤乳液（237ml）', price:106, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿润肤乳液（237ml）.jpg', desc:'', isHot:false },
+  { id:80, category:'宝宝护理', name:'丝塔芙婴儿润肤膏（100ml×2）', price:136, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿润肤膏（100ml×2）.jpg', desc:'', isHot:false },
+  { id:81, category:'宝宝护理', name:'施巴婴儿面霜', price:145, brand:'施巴', image:'宝宝护理/施巴婴儿面霜.jpg', desc:'', isHot:false },
+  { id:82, category:'宝宝护理', name:'施巴润肤乳', price:120, brand:'施巴', image:'宝宝护理/施巴润肤乳.jpg', desc:'', isHot:false },
+  { id:83, category:'宝宝护理', name:'丝塔芙婴儿保湿沐浴露', price:79, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿保湿沐浴露.jpg', desc:'', isHot:false },
+  { id:84, category:'宝宝护理', name:'丝塔芙婴儿洗发水', price:79, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿洗发水.jpg', desc:'', isHot:false },
+  { id:85, category:'宝宝护理', name:'加州宝宝金盏花泡泡浴液', price:100, brand:'加州宝宝', image:'宝宝护理/加州宝宝金盏花泡泡浴液.jpg', desc:'', isHot:false },
+  { id:86, category:'宝宝护理', name:'妙思乐冷霜滋养身体乳', price:140, brand:'妙思乐', image:'宝宝护理/妙思乐冷霜滋养身体乳.jpg', desc:'', isHot:false },
+  { id:87, category:'宝宝护理', name:'丝塔芙婴儿套装（400ml乳液+洗发沐浴50ml）', price:119, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿套装（400ml乳液+洗发沐浴50ml）.jpg', desc:'', isHot:false },
+  { id:88, category:'宝宝护理', name:'丝塔芙婴儿套装（400ml洗发沐浴+乳液50ml）', price:119, brand:'丝塔芙', image:'宝宝护理/丝塔芙婴儿套装（400ml洗发沐浴+乳液50ml）.jpg', desc:'', isHot:false },
+  { id:89, category:'宝宝零食', name:'Bebefood宝宝海苔', price:32, brand:'Bebefood', image:'宝宝零食/Bebefood宝宝海苔.jpg', desc:'', isHot:true },
+  { id:90, category:'宝宝零食', name:'renewallife有机苹果米饼', price:32, brand:'renewallife', image:'宝宝零食/renewallife有机苹果米饼.jpg', desc:'', isHot:true },
+  { id:91, category:'宝宝零食', name:'宝宝百味有机波波米（芝士味）', price:35, brand:'宝宝百味', image:'宝宝零食/宝宝百味有机波波米（芝士味）.jpg', desc:'', isHot:false },
+  { id:92, category:'宝宝零食', name:'宝宝百味有机波波米（草莓味）', price:35, brand:'宝宝百味', image:'宝宝零食/宝宝百味有机波波米（草莓味）.jpg', desc:'', isHot:false },
+  { id:93, category:'宝宝零食', name:'宝宝百味有机波波米（蓝莓味）', price:35, brand:'宝宝百味', image:'宝宝零食/宝宝百味有机波波米（蓝莓味）.jpg', desc:'', isHot:false },
+  { id:94, category:'宝宝零食', name:'宝宝百味有机波波米（香蕉味）', price:35, brand:'宝宝百味', image:'宝宝零食/宝宝百味有机波波米（香蕉味）.jpg', desc:'', isHot:false },
+  { id:95, category:'宝宝零食', name:'ILDONG香蕉磨牙棒', price:36, brand:'ILDONG', image:'宝宝零食/ILDONG香蕉磨牙棒.jpg', desc:'', isHot:true },
+  { id:96, category:'宝宝零食', name:'Bebefood米饼（红薯味）', price:48, brand:'Bebefood', image:'宝宝零食/Bebefood米饼（红薯味）.jpg', desc:'', isHot:false },
+  { id:97, category:'宝宝零食', name:'Bebefood米饼（苹果味）', price:48, brand:'Bebefood', image:'宝宝零食/Bebefood米饼（苹果味）.jpg', desc:'', isHot:false },
+  { id:98, category:'宝宝零食', name:'renewallife米饼南瓜味', price:32, brand:'renewallife', image:'宝宝零食/renewallife米饼南瓜味.jpg', desc:'', isHot:false },
+  { id:99, category:'宝宝零食', name:'renewallife米饼红薯味', price:32, brand:'renewallife', image:'宝宝零食/renewallife米饼红薯味.jpg', desc:'', isHot:false },
+  { id:100, category:'宝宝零食', name:'NOBI磨牙米饼（红薯味）', price:28, brand:'NOBI', image:'宝宝零食/NOBI磨牙米饼（红薯味）.jpg', desc:'', isHot:false },
+  { id:101, category:'宝宝零食', name:'NOBI磨牙米饼（蓝莓味）', price:28, brand:'NOBI', image:'宝宝零食/NOBI磨牙米饼（蓝莓味）.jpg', desc:'', isHot:false },
+  { id:102, category:'宝宝零食', name:'NOBI婴幼儿有机椰子卷', price:25, brand:'NOBI', image:'宝宝零食/NOBI婴幼儿有机椰子卷.jpg', desc:'', isHot:false },
+  { id:103, category:'宝宝零食', name:'宝宝百味草莓紫米胚芽米饼', price:59, brand:'宝宝百味', image:'宝宝零食/宝宝百味草莓紫米胚芽米饼.jpg', desc:'', isHot:false },
+  { id:104, category:'宝宝零食', name:'宝宝百味有机野菜胚芽米饼', price:59, brand:'宝宝百味', image:'宝宝零食/宝宝百味有机野菜胚芽米饼.jpg', desc:'', isHot:false },
+  { id:105, category:'宝宝零食', name:'宝宝百味婴幼儿低钠紫菜', price:70, brand:'宝宝百味', image:'宝宝零食/宝宝百味婴幼儿低钠紫菜.jpg', desc:'', isHot:false },
+  { id:106, category:'宝宝零食', name:'ILDONG香蕉泡芙', price:39, brand:'ILDONG', image:'宝宝零食/ILDONG香蕉泡芙.jpg', desc:'', isHot:false },
+  { id:107, category:'宝宝零食', name:'BEBECOOK蓝莓香蕉磨牙棒', price:46, brand:'BEBECOOK', image:'宝宝零食/BEBECOOK蓝莓香蕉磨牙棒.jpg', desc:'', isHot:false },
+  { id:108, category:'宝宝零食', name:'renewallife有机香蕉米饼', price:32, brand:'renewallife', image:'宝宝零食/renewallife有机香蕉米饼.jpg', desc:'', isHot:false },
+  { id:109, category:'宝宝零食', name:'renewallife米条苹果香蕉味', price:32, brand:'renewallife', image:'宝宝零食/renewallife米条苹果香蕉味.jpg', desc:'', isHot:false },
+  { id:110, category:'宝宝零食', name:'renewallife五谷米条南瓜味', price:32, brand:'renewallife', image:'宝宝零食/renewallife五谷米条南瓜味.jpg', desc:'', isHot:false },
+  { id:111, category:'宝宝零食', name:'renewallife五谷米条蔬菜味', price:32, brand:'renewallife', image:'宝宝零食/renewallife五谷米条蔬菜味.jpg', desc:'', isHot:false },
+  { id:112, category:'宝宝零食', name:'renewallife五谷米条紫薯味', price:32, brand:'renewallife', image:'宝宝零食/renewallife五谷米条紫薯味.jpg', desc:'', isHot:false },
+  { id:113, category:'宝宝零食', name:'renewallife糙米条综合莓果味', price:32, brand:'renewallife', image:'宝宝零食/renewallife糙米条综合莓果味.jpg', desc:'', isHot:false },
+  { id:114, category:'宝宝零食', name:'renewallife糙米条蔬菜味', price:32, brand:'renewallife', image:'宝宝零食/renewallife糙米条蔬菜味.jpg', desc:'', isHot:false },
+  { id:115, category:'宝宝零食', name:'宝宝百味波波米苹果胡萝卜', price:42, brand:'宝宝百味', image:'宝宝零食/宝宝百味波波米苹果胡萝卜.jpg', desc:'', isHot:false },
+  { id:116, category:'宝宝零食', name:'宝宝百味波波米可可味', price:42, brand:'宝宝百味', image:'宝宝零食/宝宝百味波波米可可味.jpg', desc:'', isHot:false },
+  { id:117, category:'宝宝零食', name:'宝宝百味波波米糙米味', price:42, brand:'宝宝百味', image:'宝宝零食/宝宝百味波波米糙米味.jpg', desc:'', isHot:false },
+  { id:118, category:'宝宝零食', name:'宝宝百味南瓜藜麦胚芽米饼', price:59, brand:'宝宝百味', image:'宝宝零食/宝宝百味南瓜藜麦胚芽米饼.jpg', desc:'', isHot:false },
+  { id:119, category:'宝宝零食', name:'Wel-B 婴幼儿酸奶溶豆（苹果味）', price:93, brand:'Wel-B', image:'宝宝零食/Wel-B 婴幼儿酸奶溶豆（苹果味）.jpg', desc:'', isHot:false },
+  { id:120, category:'宝宝零食', name:'Wel-B 婴幼儿酸奶溶豆（混合莓果味）', price:93, brand:'Wel-B', image:'宝宝零食/Wel-B 婴幼儿酸奶溶豆（混合莓果味）.jpg', desc:'', isHot:false },
+  { id:121, category:'宝宝零食', name:'Wel-B 婴幼儿酸奶溶豆（草莓味）', price:93, brand:'Wel-B', image:'宝宝零食/Wel-B 婴幼儿酸奶溶豆（草莓味）.jpg', desc:'', isHot:false },
+  { id:122, category:'宝宝零食', name:'Apple Monkey 有机米饼（草莓香蕉味）', price:48, brand:'Apple Monkey', image:'宝宝零食/Apple Monkey 有机米饼（草莓香蕉味）.jpg', desc:'', isHot:false },
+  { id:123, category:'宝宝零食', name:'Apple Monkey 有机米饼（菠菜味）', price:48, brand:'Apple Monkey', image:'宝宝零食/Apple Monkey 有机米饼（菠菜味）.jpg', desc:'', isHot:false },
+  { id:124, category:'宝宝零食', name:'Apple Monkey 有机米饼（红薯味）', price:48, brand:'Apple Monkey', image:'宝宝零食/Apple Monkey 有机米饼（红薯味）.jpg', desc:'', isHot:false },
+  { id:125, category:'宝宝零食', name:'Apple Monkey 有机米饼（蓝莓草莓味）', price:48, brand:'Apple Monkey', image:'宝宝零食/Apple Monkey 有机米饼（蓝莓草莓味）.jpg', desc:'', isHot:false },
+  { id:126, category:'宝宝零食', name:'Apple Monkey 有机米饼（南瓜味）', price:48, brand:'Apple Monkey', image:'宝宝零食/Apple Monkey 有机米饼（南瓜味）.jpg', desc:'', isHot:false },
+  { id:127, category:'宝宝零食', name:'Little Bellies 有机动物造型饼干', price:48, brand:'Little Bellies', image:'宝宝零食/Little Bellies 有机动物造型饼干.jpg', desc:'', isHot:false },
+  { id:128, category:'宝宝零食', name:'Little Bellies 有机蓝莓味泡芙', price:23, brand:'Little Bellies', image:'宝宝零食/Little Bellies 有机蓝莓味泡芙.jpg', desc:'', isHot:false },
+  { id:129, category:'宝宝零食', name:'Little Bellies 有机香蕉味软玉米条', price:23, brand:'Little Bellies', image:'宝宝零食/Little Bellies 有机香蕉味软玉米条.jpg', desc:'', isHot:false },
+  { id:130, category:'宝宝零食', name:'森永（Morinaga）婴幼儿营养饼干', price:15, brand:'森永', image:'宝宝零食/森永（Morinaga）婴幼儿营养饼干.jpg', desc:'', isHot:false },
+  { id:131, category:'宝宝零食', name:'BeanStalk 乳酸菌小馒头', price:26, brand:'BeanStalk', image:'宝宝零食/BeanStalk 乳酸菌小馒头.jpg', desc:'', isHot:false },
+  { id:132, category:'宝宝零食', name:'和光堂高钙芝士饼干棒（9月+）', price:25, brand:'和光堂', image:'宝宝零食/和光堂高钙芝士饼干棒（9月+）.jpg', desc:'', isHot:false },
+  { id:133, category:'宝宝零食', name:'和光堂高钙高钙鸡蛋小馒头（7月+）', price:25, brand:'和光堂', image:'宝宝零食/和光堂高钙高钙鸡蛋小馒头（7月+）.jpg', desc:'', isHot:false },
+  { id:134, category:'宝宝零食', name:'Calcket 高钙小馒头', price:25, brand:'Calcket', image:'宝宝零食/Calcket 高钙小馒头.jpg', desc:'', isHot:false },
+  { id:135, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥120g（蓝莓苹果香蕉）', price:29, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥120g（蓝莓苹果香蕉）.jpg', desc:'', isHot:false },
+  { id:136, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥70g（苹果）', price:24, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥70g（苹果）.jpg', desc:'', isHot:false },
+  { id:137, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥70g（梨子）', price:24, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥70g（梨子）.jpg', desc:'', isHot:false },
+  { id:138, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥70g（西梅）', price:24, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥70g（西梅）.jpg', desc:'', isHot:false },
+  { id:139, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥120g（西蓝花青豆梨）', price:29, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥120g（西蓝花青豆梨）.jpg', desc:'', isHot:false },
+  { id:140, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥90g（白色水果）', price:25, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥90g（混合水果）.jpg', desc:'', isHot:false },
+  { id:141, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥90g（粉色水果）', price:25, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥90g（粉色水果）.jpg', desc:'', isHot:false },
+  { id:142, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥90g（红色水果）', price:25, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥90g（红色水果）.jpg', desc:'', isHot:false },
+  { id:143, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥90g（黄色水果）', price:25, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥90g（黄色水果）.jpg', desc:'', isHot:false },
+  { id:144, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥90g（紫色水果）', price:25, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥90g（紫色水果）.jpg', desc:'', isHot:false },
+  { id:145, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥90g（绿色水果）', price:25, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥90g（绿色水果）.jpg', desc:'', isHot:false },
+  { id:146, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥120g（胡萝卜苹果芹菜萝卜）', price:29, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥120g（胡萝卜苹果芹菜萝卜）.jpg', desc:'', isHot:false },
+  { id:147, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥120g（草莓苹果）', price:29, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥120g（草莓苹果）.jpg', desc:'', isHot:false },
+  { id:148, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥120g（番薯南瓜蓝莓）', price:29, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥120g（番薯南瓜蓝莓）.jpg', desc:'', isHot:false },
+  { id:149, category:'宝宝零食', name:'Ella\'s Kitchen 婴幼儿果泥70g（香桃）', price:24, brand:'Ella\'s Kitchen', image:'宝宝零食/Ella\'s Kitchen 婴幼儿果泥70g（香桃）.jpg', desc:'', isHot:false },
+  { id:150, category:'宝宝零食', name:'Ivenet谷物夹心棒（蓝莓味）', price:39, brand:'Ivenet', image:'宝宝零食/Ivenet谷物夹心棒（蓝莓味）.jpg', desc:'', isHot:false },
+  { id:151, category:'宝宝零食', name:'HappyBABY芒果南瓜味磨牙脆饼', price:80, brand:'HappyBABY', image:'宝宝零食/HappyBABY芒果南瓜味磨牙脆饼.jpg', desc:'', isHot:false },
+  { id:152, category:'宝宝零食', name:'HappyBABY草莓甜菜味磨牙脆饼', price:80, brand:'HappyBABY', image:'宝宝零食/HappyBABY草莓甜菜味磨牙脆饼.jpg', desc:'', isHot:false },
+  { id:153, category:'宝宝零食', name:'HappyBABY蓝莓紫胡萝卜味磨牙米饼', price:80, brand:'HappyBABY', image:'宝宝零食/HappyBABY蓝莓紫胡萝卜味磨牙米饼.jpg', desc:'', isHot:false },
+  { id:154, category:'宝宝玩具', name:'VTECH学习机1', price:259, brand:'VTECH', image:'宝宝玩具/VTECH学习机1.jpg', desc:'', isHot:false },
+  { id:155, category:'宝宝玩具', name:'VTECH学习机2', price:259, brand:'VTECH', image:'宝宝玩具/VTECH学习机2.jpg', desc:'', isHot:false },
+  { id:156, category:'宝宝玩具', name:'VTECH 字母拼读早教巴士玩具', price:299, brand:'VTECH', image:'宝宝玩具/VTECH 字母拼读早教巴士玩具.jpg', desc:'', isHot:false },
+  { id:157, category:'宝宝玩具', name:'VTECH 三合一赛车方向盘早教玩具', price:329, brand:'VTECH', image:'宝宝玩具/VTECH 三合一赛车方向盘早教玩具.jpg', desc:'', isHot:false },
+  { id:158, category:'宝宝玩具', name:'VTECH 儿童 DJ 打碟混音台玩具', price:619, brand:'VTECH', image:'宝宝玩具/VTECH 儿童 DJ 打碟混音台玩具.jpg', desc:'', isHot:false },
+  { id:159, category:'宝宝玩具', name:'Janod 法国磁力拼拼书', price:196, brand:'Janod', image:'宝宝玩具/Janod 法国磁力拼拼书.jpg', desc:'', isHot:false },
+  { id:160, category:'宝宝玩具', name:'面包超人方向盘', price:299, brand:'面包超人', image:'宝宝玩具/面包超人方向盘.jpg', desc:'', isHot:false },
+  { id:161, category:'宝宝玩具', name:'LeapFrog 仿真吸尘机早教玩具', price:330, brand:'LeapFrog', image:'宝宝玩具/LeapFrog 仿真吸尘机早教玩具.jpg', desc:'', isHot:false },
+  { id:162, category:'宝宝玩具', name:'Magna-Tiles 迷你便携磁力片1', price:173, brand:'Magna-Tiles', image:'宝宝玩具/Magna-Tiles 迷你便携磁力片1.jpg', desc:'', isHot:false },
+  { id:163, category:'宝宝玩具', name:'Magna-Tiles 迷你便携磁力片2', price:173, brand:'Magna-Tiles', image:'宝宝玩具/Magna-Tiles 迷你便携磁力片2.jpg', desc:'', isHot:false },
+  { id:164, category:'宝宝玩具', name:'面包超人婴儿手摇铃沙锤', price:53, brand:'面包超人', image:'宝宝玩具/面包超人婴儿手摇铃沙锤.jpg', desc:'', isHot:false },
+  { id:165, category:'宝宝玩具', name:'面包超人仿真电动出水洗手台', price:353, brand:'面包超人', image:'宝宝玩具/面包超人仿真电动出水洗手台.jpg', desc:'', isHot:false },
+  { id:166, category:'宝宝玩具', name:'面包超人育脑形状解锁屋', price:365, brand:'面包超人', image:'宝宝玩具/面包超人育脑形状解锁屋.jpg', desc:'', isHot:false },
+  { id:167, category:'宝宝用品', name:'NUK 婴儿乳牙训练牙刷套装（6个月）', price:64, brand:'NUK', image:'宝宝用品/NUK 婴儿乳牙训练牙刷套装（6个月）.jpg', desc:'', isHot:false },
+  { id:168, category:'宝宝用品', name:'NUK 婴儿乳牙训练牙刷套装（12个月）', price:53, brand:'NUK', image:'宝宝用品/NUK 婴儿乳牙训练牙刷套装（12个月）.jpg', desc:'', isHot:false },
+  { id:169, category:'宝宝用品', name:'面包超人搓澡巾', price:35, brand:'面包超人', image:'宝宝用品/面包超人搓澡巾.jpg', desc:'', isHot:false },
+  { id:170, category:'宝宝用品', name:'b.box 婴幼儿学饮杯（鸭嘴杯款）', price:112, brand:'b.box', image:'宝宝用品/b.box 婴幼儿学饮杯（鸭嘴杯款）.jpg', desc:'', isHot:false },
+  { id:171, category:'宝宝用品', name:'b.box 经典重力球吸管学饮杯', price:112, brand:'b.box', image:'宝宝用品/b.box 经典重力球吸管学饮杯.jpg', desc:'', isHot:false },
+  { id:172, category:'宝宝用品', name:'b.box 经典重力球吸管学饮杯（迪士尼冰雪奇缘联名款）', price:133, brand:'b.box', image:'宝宝用品/b.box 经典重力球吸管学饮杯（迪士尼冰雪奇缘联名款）.jpg', desc:'', isHot:false },
+  { id:173, category:'宝宝用品', name:'b.box PPSU重力球吸管杯', price:175, brand:'b.box', image:'宝宝用品/b.box PPSU重力球吸管杯.jpg', desc:'', isHot:false },
+  { id:174, category:'宝宝用品', name:'狮王儿童牙膏', price:18, brand:'狮王', image:'宝宝用品/狮王儿童牙膏.jpg', desc:'', isHot:false },
+  { id:175, category:'宝宝用品', name:'花王儿童牙膏', price:18, brand:'花王', image:'宝宝用品/花王儿童牙膏.jpg', desc:'', isHot:false },
+  { id:176, category:'宝宝用品', name:'面包超人儿童牙膏', price:18, brand:'面包超人', image:'宝宝用品/面包超人儿童牙膏.jpg', desc:'', isHot:false },
+  { id:177, category:'宝宝用品', name:'巧虎儿童牙膏', price:16, brand:'巧虎', image:'宝宝用品/巧虎儿童牙膏.jpg', desc:'', isHot:false },
+  { id:178, category:'宝宝用品', name:'和光堂360°宝宝训练牙刷', price:97, brand:'和光堂', image:'宝宝用品/和光堂360°宝宝训练牙刷.jpg', desc:'', isHot:false },
+  { id:179, category:'保健类', name:'Schiff MoveFree益节4合1氨糖软骨素（80粒）', price:170, brand:'Schiff', image:'保健类/Schiff MoveFree益节4合1氨糖软骨素（80粒）.jpg', desc:'', isHot:false },
+  { id:180, category:'保健类', name:'Schiff MoveFree益节5合1氨糖软骨素（120粒）', price:240, brand:'Schiff', image:'保健类/Schiff MoveFree益节5合1氨糖软骨素（120粒）.jpg', desc:'', isHot:false },
+  { id:181, category:'保健类', name:'GNC儿童DHA软糖', price:162, brand:'GNC', image:'保健类/GNC儿童DHA软糖.jpg', desc:'', isHot:false },
+  { id:182, category:'保健类', name:'CATALO儿童DHA活脑补眼', price:269, brand:'CATALO', image:'保健类/CATALO儿童DHA活脑补眼.jpg', desc:'', isHot:false },
+  { id:183, category:'保健类', name:'CATALO儿童牛奶钙加锌成长', price:418, brand:'CATALO', image:'保健类/CATALO儿童牛奶钙加锌成长.jpg', desc:'', isHot:false },
+  { id:184, category:'保健类', name:'CATALO儿童牛初乳强健配方', price:398, brand:'CATALO', image:'保健类/CATALO儿童牛初乳强健配方.jpg', desc:'', isHot:false },
+  { id:185, category:'保健类', name:'衍生精装儿童七星茶颗粒冲剂', price:77, brand:'衍生', image:'保健类/衍生精装七星茶颗粒冲剂.jpg', desc:'', isHot:false },
+  { id:186, category:'保健类', name:'余仁生儿童七星茶', price:90, brand:'余仁生', image:'保健类/余仁生儿童七星茶.jpg', desc:'', isHot:false },
+  { id:187, category:'保健类', name:'衍生儿童枇杷雪梨蜜', price:95, brand:'衍生', image:'保健类/衍生儿童枇杷雪梨蜜.jpg', desc:'', isHot:false },
+  { id:188, category:'保健类', name:'Swisse 高强度无腥味野生鱼油', price:150, brand:'Swisse', image:'保健类/Swisse 高强度无腥味野生鱼油.jpg', desc:'', isHot:false },
+  { id:189, category:'保健类', name:'Holdbody 儿童DHA', price:246, brand:'Holdbody', image:'保健类/Holdbody 儿童DHA.jpg', desc:'', isHot:false },
+  { id:190, category:'保健类', name:'Holdbody 儿童智专注', price:255, brand:'Holdbody', image:'保健类/Holdbody 儿童智专注.jpg', desc:'', isHot:false },
+  { id:191, category:'保健类', name:'Holdbody 超级天然钙', price:246, brand:'Holdbody', image:'保健类/Holdbody 超级天然钙.jpg', desc:'', isHot:false },
+  { id:192, category:'保健类', name:'Holdbody 天然孕妇钙', price:246, brand:'Holdbody', image:'保健类/Holdbody 天然孕妇钙.jpg', desc:'', isHot:false },
+  { id:193, category:'成人护理', name:'丝塔芙成人湿疹润肤霜', price:219, brand:'丝塔芙', image:'成人护理/丝塔芙成人湿疹润肤霜.jpg', desc:'', isHot:false },
+  { id:194, category:'成人护理', name:'卡麦8粒装（粉卡）', price:850, brand:'卡麦', image:'成人护理/卡麦8粒装（粉卡）.jpg', desc:'', isHot:false },
+  { id:195, category:'成人护理', name:'卡麦8粒装（蓝卡）', price:680, brand:'卡麦', image:'成人护理/卡麦8粒装（蓝卡）.jpg', desc:'', isHot:false },
+  { id:196, category:'成人护理', name:'黑人抗敏感亮白牙膏', price:10, brand:'黑人', image:'成人护理/黑人抗敏感亮白牙膏.jpg', desc:'', isHot:false },
+  { id:197, category:'成人护理', name:'丝塔芙成人大白罐', price:90, brand:'丝塔芙', image:'成人护理/丝塔芙成人大白罐.jpg', desc:'', isHot:false },
+  { id:198, category:'成人护理', name:'Neogence 无针水光维他命A紧致面膜', price:88, brand:'Neogence', image:'成人护理/Neogence 无针水光维他命A紧致面膜.jpg', desc:'', isHot:false },
+  { id:199, category:'成人护理', name:'Neogence 无针水光维他命B保湿面膜', price:88, brand:'Neogence', image:'成人护理/Neogence 无针水光维他命B保湿面膜.jpg', desc:'', isHot:false },
+  { id:200, category:'成人护理', name:'Neogence 无针水光维他命C美白面膜', price:88, brand:'Neogence', image:'成人护理/Neogence 无针水光维他命C美白面膜.jpg', desc:'', isHot:false },
+  { id:201, category:'成人护理', name:'Neogence 超爆水清爽保湿面膜', price:88, brand:'Neogence', image:'成人护理/Neogence 超爆水清爽保湿面膜.jpg', desc:'', isHot:false },
+  { id:202, category:'成人护理', name:'Neogence 超爆水透亮焕白面膜', price:88, brand:'Neogence', image:'成人护理/Neogence 超爆水透亮焕白面膜.jpg', desc:'', isHot:false },
+  { id:203, category:'成人护理', name:'Neogence 超爆水润泽保湿面膜', price:88, brand:'Neogence', image:'成人护理/Neogence 超爆水润泽保湿面膜.jpg', desc:'', isHot:false },
+  { id:204, category:'成人护理', name:'丝塔芙成人大白罐（500+250）', price:150, brand:'丝塔芙', image:'成人护理/丝塔芙成人大白罐（500+250）.jpg', desc:'', isHot:false },
+  { id:205, category:'成人护理', name:'珂润润浸保湿泡沫洁面乳', price:70, brand:'珂润', image:'成人护理/珂润润浸保湿泡沫洁面乳.jpg', desc:'', isHot:false },
+  { id:206, category:'夏日必备', name:'无比滴宝宝版', price:45, brand:'无比滴', image:'夏日必备/无比滴宝宝版.jpg', desc:'', isHot:false },
+  { id:207, category:'夏日必备', name:'日本叮叮 驱蚊贴', price:38, brand:'日本叮叮', image:'夏日必备/日本叮叮 驱蚊贴.jpg', desc:'', isHot:false },
+  { id:208, category:'夏日必备', name:'欧护防蚊喷雾儿童版59ml', price:45, brand:'欧护', image:'夏日必备/欧护防蚊喷雾儿童版59ml.jpg', desc:'', isHot:false },
+  { id:209, category:'夏日必备', name:'欧护防蚊喷雾儿童版177ml', price:58, brand:'欧护', image:'夏日必备/欧护防蚊喷雾儿童版177ml.jpg', desc:'', isHot:true },
+  { id:210, category:'夏日必备', name:'欧护防蚊喷雾成人版177ml', price:69, brand:'欧护', image:'夏日必备/欧护防蚊喷雾成人版177ml.jpg', desc:'', isHot:false },
+  { id:211, category:'夏日必备', name:'eco.babe有机防蚊驱蚊喷雾225ml', price:219, brand:'eco.babe', image:'夏日必备/eco.babe有机防蚊驱蚊喷雾225ml.jpg', desc:'', isHot:true },
+  { id:212, category:'夏日必备', name:'贝亲桃子水', price:39, brand:'贝亲', image:'夏日必备/贝亲桃子水.jpg', desc:'', isHot:false },
+  { id:213, category:'夏日必备', name:'妥析呼吸道10合1流感检测试剂盒', price:72, brand:'妥析', image:'夏日必备/妥析呼吸道10合1流感检测试剂盒.jpg', desc:'', isHot:false },
+  { id:214, category:'夏日必备', name:'妥析呼吸道6合1流感测试剂盒（儿童专用）', price:65, brand:'妥析', image:'夏日必备/妥析呼吸道6合1流感测试剂盒（儿童专用）.jpg', desc:'', isHot:false },
+  { id:215, category:'夏日必备', name:'VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）', price:58, brand:'VAPE', image:'夏日必备/VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）.jpg', desc:'', isHot:true },
+  { id:216, category:'夏日必备', name:'VAPE 天使宝宝驱蚊喷雾（60ml）', price:56, brand:'VAPE', image:'夏日必备/VAPE 天使宝宝驱蚊喷雾（60ml）.jpg', desc:'', isHot:false },
+  { id:217, category:'夏日必备', name:'KINCHO 金鸟儿童驱蚊喷雾（无香款 200ml）', price:49, brand:'KINCHO', image:'夏日必备/KINCHO 金鸟儿童驱蚊喷雾（无香款 200ml）.jpg', desc:'', isHot:false },
+  { id:218, category:'夏日必备', name:'VAPE 绿色经典驱蚊喷雾', price:35, brand:'VAPE', image:'夏日必备/VAPE 绿色经典驱蚊喷雾.jpg', desc:'', isHot:false },
+  { id:219, category:'夏日必备', name:'日本叮叮止痒舒缓滚珠', price:49, brand:'日本叮叮', image:'夏日必备/日本叮叮止痒舒缓滚珠.jpg', desc:'', isHot:false },
+];
 const CATEGORIES = [
-  { key:"all", label:"全部商品", icon:"🏪" },
+  { key:"all", label:"全部", icon:"🏪" },
   { key:"夏日必备", label:"夏日必备", icon:"☀️" },
   { key:"宝宝护理", label:"宝宝护理", icon:"🌿" },
   { key:"宝宝零食", label:"宝宝零食", icon:"🍪" },
@@ -1571,124 +1040,95 @@ const CATEGORIES = [
   { key:"宝宝用品", label:"宝宝用品", icon:"🍼" },
   { key:"保健类", label:"保健类", icon:"💊" },
   { key:"成人护理", label:"成人护理", icon:"✨" },
-  { key:"about", label:"关于我们", icon:"💬" },
 ];
+
+const PRIORITY_BRANDS = ["丝塔芙", "宝宝百味", "renewallife", "農純郷"];
 
 // ===================== STATE =====================
 let cart = {};
-let currentCategory = "all";
+let currentTab = "home";
+let currentCategory = "夏日必备";
 let currentBrandFilter = "all";
+let searchKeyword = "";
 let modalProduct = null;
 let modalQty = 1;
-let searchKeyword = "";
+let brandExpanded = false;
+let addresses = [];
+let defaultAddressId = null;
+let editingAddressId = null;
 
 // ===================== INIT =====================
 function init() {
-  renderNavTabs();
-  switchCategory("all");
+  loadCart();
+  loadAddresses();
+  renderHome();
+  renderCategorySidebar();
+  renderCategoryContent();
+  renderCartPage();
+  renderProfile();
+  updateCartBadge();
 }
 
-// ===================== NAV TABS =====================
-// 主行固定展示的分类 key（按顺序）
-const MAIN_CATS = ["all", "宝宝辅食", "宝宝护理", "宝宝零食", "保健类"];
-
-let navExpanded = false;
-
-function makeCatBtn(c) {
-  const count = c.key === "all"
-    ? PRODUCTS.length
-    : c.key === "about"
-    ? null
-    : PRODUCTS.filter(p => p.category === c.key).length;
-  return `<button class="tab-btn${currentCategory===c.key?' active':''}" onclick="switchCategory('${c.key}')">
-    ${c.icon} ${c.label}
-    ${count!==null?`<span class="tab-count">${count}</span>`:''}
-  </button>`;
+// ===================== LOCAL STORAGE =====================
+function loadCart() {
+  try { cart = JSON.parse(localStorage.getItem("hahapu_cart") || "{}"); } catch(e) { cart = {}; }
+}
+function saveCart() {
+  localStorage.setItem("hahapu_cart", JSON.stringify(cart));
+}
+function loadAddresses() {
+  try {
+    addresses = JSON.parse(localStorage.getItem("hahapu_addresses") || "[]");
+    defaultAddressId = localStorage.getItem("hahapu_default_address_id");
+  } catch(e) { addresses = []; defaultAddressId = null; }
+}
+function saveAddresses() {
+  localStorage.setItem("hahapu_addresses", JSON.stringify(addresses));
+  localStorage.setItem("hahapu_default_address_id", defaultAddressId || "");
 }
 
-function renderNavTabs() {
-  const mainRow = document.getElementById("navTabsMain");
-  const moreRow = document.getElementById("navTabsMore");
+// ===================== TAB SWITCHING =====================
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".tab-page").forEach(el => el.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  document.querySelectorAll(".tab-item").forEach(el => el.classList.remove("active"));
+  document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add("active");
 
-  const mainCats = CATEGORIES.filter(c => MAIN_CATS.includes(c.key));
-  // 排序按 MAIN_CATS 顺序
-  mainCats.sort((a,b) => MAIN_CATS.indexOf(a.key) - MAIN_CATS.indexOf(b.key));
-  const moreCats = CATEGORIES.filter(c => !MAIN_CATS.includes(c.key));
-
-  mainRow.innerHTML = mainCats.map(makeCatBtn).join('') +
-    `<button class="tab-btn-more${navExpanded?' open':''}" onclick="toggleNavMore()" id="btnMore">
-      更多 <i class="arrow">▾</i>
-    </button>`;
-
-  moreRow.innerHTML = moreCats.map(makeCatBtn).join('');
-  if (navExpanded) moreRow.classList.add('expanded');
-  else moreRow.classList.remove('expanded');
-}
-
-function toggleNavMore() {
-  navExpanded = !navExpanded;
-  const moreRow = document.getElementById("navTabsMore");
-  const btn = document.getElementById("btnMore");
-  moreRow.classList.toggle('expanded', navExpanded);
-  btn.classList.toggle('open', navExpanded);
-  btn.innerHTML = navExpanded ? '收起 <i class="arrow">▾</i>' : '更多 <i class="arrow">▾</i>';
-}
-
-// ===================== SWITCH CATEGORY =====================
-function switchCategory(key) {
-  currentCategory = key;
-  currentBrandFilter = "all";
-  // 如果选中的是"更多"区域的分类，保持展开状态；否则不改变
-  renderNavTabs();
-  renderMain();
+  if (tab === "home") renderHome();
+  if (tab === "category") renderCategoryContent();
+  if (tab === "cart") renderCartPage();
+  if (tab === "profile") renderProfile();
 }
 
 // ===================== SEARCH =====================
 function handleSearch() {
   searchKeyword = document.getElementById("searchInput").value.trim().toLowerCase();
-  currentCategory = "all";
-  renderNavTabs();
-  renderMain();
+  if (searchKeyword) {
+    switchTab("home");
+  }
+  renderHome();
 }
 
-// ===================== RENDER MAIN =====================
-function renderMain() {
-  const main = document.getElementById("mainContent");
-
-  if (currentCategory === "about") {
-    main.innerHTML = renderAbout();
-    return;
-  }
-
+// ===================== HOME RENDER =====================
+function renderHome() {
+  const container = document.getElementById("homeContent");
   let products = PRODUCTS;
 
-  // search filter
   if (searchKeyword) {
     products = products.filter(p =>
       p.name.toLowerCase().includes(searchKeyword) ||
       p.brand.toLowerCase().includes(searchKeyword) ||
       p.category.toLowerCase().includes(searchKeyword)
     );
-  } else if (currentCategory !== "all") {
-    products = products.filter(p => p.category === currentCategory);
   }
 
-  // brand filter
-  const brands = [...new Set(products.map(p=>p.brand))].sort();
-
-  if (currentBrandFilter !== "all") {
-    products = products.filter(p => p.brand === currentBrandFilter);
-  }
-
-  const catInfo = CATEGORIES.find(c => c.key === currentCategory) || CATEGORIES[0];
-
-  // 爆款推荐商品
   const hotProducts = PRODUCTS.filter(p => p.isHot);
+  const brands = [...new Set(products.map(p=>p.brand).filter(b=>b))].sort();
 
-  let html = `<div class="section active">`;
+  let html = "";
 
-  // 如果是全部商品且没有搜索，显示爆款推荐
-  if (currentCategory === "all" && !searchKeyword) {
+  if (!searchKeyword) {
     html += `
       <div class="hot-section">
         <div class="section-header">
@@ -1697,435 +1137,467 @@ function renderMain() {
           <span class="section-desc">最受欢迎的热销商品</span>
         </div>
         <div class="hot-products-scroll">
-          ${hotProducts.map(p => renderProductCard(p)).join('')}
+          ${hotProducts.map(p => renderProductCard(p)).join("")}
         </div>
       </div>
-      <div style="margin: 24px 0; border-top: 1px solid var(--border);"></div>
     `;
   }
 
   html += `
     <div class="section-header">
-      <span class="section-icon">${catInfo.icon}</span>
-      <span class="section-title">${catInfo.label}</span>
-      <span class="section-desc">共 ${products.length} 件商品</span>
+      <span class="section-icon">🏪</span>
+      <span class="section-title">${searchKeyword ? "搜索结果" : "全部商品"}</span>
+      <span class="section-desc">共 ${products.length} 件</span>
     </div>
-    ${brands.length > 1 ? renderBrandFilter(brands) : ''}
-    ${products.length === 0
-      ? `<div class="no-results">🔍 没有找到相关商品</div>`
-      : `<div class="product-grid">${products.map(p => renderProductCard(p)).join('')}</div>`
-    }
   `;
 
-  html += `</div>`;
-  main.innerHTML = html;
+  if (brands.length > 1 && !searchKeyword) {
+    html += renderBrandFilter(brands);
+  }
+
+  html += products.length === 0
+    ? `<div style="text-align:center;padding:40px;color:var(--text-muted);">🔍 没有找到相关商品</div>`
+    : `<div class="product-grid">${products.map(p => renderProductCard(p)).join("")}</div>`;
+
+  container.innerHTML = html;
 }
 
-// ===================== BRAND FILTER =====================
-const PRIORITY_BRANDS = ["丝塔芙","宝宝百味","renewallife","農純郷"];
-let brandExpanded = false;
+// ===================== CATEGORY RENDER =====================
+function renderCategorySidebar() {
+  const sidebar = document.getElementById("catSidebar");
+  sidebar.innerHTML = CATEGORIES.filter(c => c.key !== "all").map(c => {
+    const count = PRODUCTS.filter(p => p.category === c.key).length;
+    return `<div class="cat-sidebar-item${currentCategory===c.key?' active':''}" onclick="switchCategory('${c.key}')">
+      ${c.label}<br><span style="font-size:10px;opacity:0.7;">${count}件</span>
+    </div>`;
+  }).join("");
+}
 
-function renderBrandFilter(brands) {
-  const priority = brands.filter(b => PRIORITY_BRANDS.includes(b));
-  const rest     = brands.filter(b => !PRIORITY_BRANDS.includes(b));
-  let html = `<div class="brand-filter-scroll">`;
-  html += `<button class="brand-chip${currentBrandFilter==='all'?' active':''}" onclick="filterBrand('all')">全部</button>`;
-  for (const b of priority) {
-    html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="filterBrand('${b.replace(/'/g,"\'")}')">${b}</button>`;
+function renderCategoryContent() {
+  const content = document.getElementById("catContent");
+  const catInfo = CATEGORIES.find(c => c.key === currentCategory) || CATEGORIES[1];
+  let products = PRODUCTS.filter(p => p.category === currentCategory);
+
+  if (currentBrandFilter !== "all") {
+    products = products.filter(p => p.brand === currentBrandFilter);
   }
-  if (rest.length > 0) {
-    html += `<button class="brand-chip more-btn${brandExpanded?' open':''}" onclick="toggleBrandExpand()">更多 ▾</button>`;
-    html += `<span class="brand-rest${brandExpanded?' expanded':''}">`;
-    for (const b of rest) {
-      html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="filterBrand('${b.replace(/'/g,"\'")}')">${b}</button>`;
+
+  const brands = [...new Set(PRODUCTS.filter(p=>p.category===currentCategory).map(p=>p.brand).filter(b=>b))].sort();
+
+  let html = `
+    <div class="section-header">
+      <span class="section-icon">${catInfo.icon}</span>
+      <span class="section-title">${catInfo.label}</span>
+      <span class="section-desc">共 ${products.length} 件</span>
+    </div>
+  `;
+
+  if (brands.length > 1) {
+    html += `<div class="cat-brand-row">`;
+    html += `<button class="brand-chip${currentBrandFilter==='all'?' active':''}" onclick="switchBrand('all')">全部</button>`;
+    const mainBrands = brands.filter(b => PRIORITY_BRANDS.includes(b));
+    const restBrands = brands.filter(b => !PRIORITY_BRANDS.includes(b));
+    mainBrands.forEach(b => {
+      html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="switchBrand('${b}')">${b}</button>`;
+    });
+    if (restBrands.length > 0) {
+      html += `<button class="brand-chip more-btn${brandExpanded?' open':''}" onclick="toggleBrandExpand()">更多 ▾</button>`;
     }
-    html += `</span>`;
+    html += `</div>`;
+    if (brandExpanded && restBrands.length > 0) {
+      html += `<div class="brand-filter-scroll" style="margin-bottom:10px;">`;
+      restBrands.forEach(b => {
+        html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="switchBrand('${b}')">${b}</button>`;
+      });
+      html += `</div>`;
+    }
   }
-  html += `</div>`;
-  return html;
+
+  html += products.length === 0
+    ? `<div style="text-align:center;padding:40px;color:var(--text-muted);">该分类暂无商品</div>`
+    : `<div class="product-grid">${products.map(p => renderProductCard(p)).join("")}</div>`;
+
+  content.innerHTML = html;
+}
+
+function switchCategory(key) {
+  currentCategory = key;
+  currentBrandFilter = "all";
+  brandExpanded = false;
+  renderCategorySidebar();
+  renderCategoryContent();
+}
+
+function switchBrand(brand) {
+  currentBrandFilter = brand;
+  if (currentTab === "home") renderHome();
+  if (currentTab === "category") renderCategoryContent();
 }
 
 function toggleBrandExpand() {
   brandExpanded = !brandExpanded;
-  renderMain();
+  if (currentTab === "home") renderHome();
+  if (currentTab === "category") renderCategoryContent();
 }
 
-function filterBrand(brand) {
-  currentBrandFilter = brand;
-  renderMain();
+function renderBrandFilter(brands) {
+  const mainBrands = brands.filter(b => PRIORITY_BRANDS.includes(b));
+  const restBrands = brands.filter(b => !PRIORITY_BRANDS.includes(b));
+  let html = `<div class="brand-filter-scroll">`;
+  html += `<button class="brand-chip${currentBrandFilter==='all'?' active':''}" onclick="switchBrand('all')">全部</button>`;
+  mainBrands.forEach(b => {
+    html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="switchBrand('${b}')">${b}</button>`;
+  });
+  if (restBrands.length > 0) {
+    html += `<button class="brand-chip more-btn${brandExpanded?' open':''}" onclick="toggleBrandExpand()">更多 ▾</button>`;
+  }
+  html += `</div>`;
+  if (brandExpanded && restBrands.length > 0) {
+    html += `<div class="brand-filter-scroll">`;
+    restBrands.forEach(b => {
+      html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="switchBrand('${b}')">${b}</button>`;
+    });
+    html += `</div>`;
+  }
+  return html;
 }
 
 // ===================== PRODUCT CARD =====================
 function renderProductCard(p) {
-  const inCart = cart[p.id] && cart[p.id].qty > 0;
-  const qty = inCart ? cart[p.id].qty : 0;
-
-  return `<div class="product-card" onclick="openProduct(${p.id})">
-    <div class="product-img-wrap">
-      <img src="${encodeURI(p.image)}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" />
-      <div class="product-img-placeholder" style="display:none;">${getCategoryEmoji(p.category)}</div>
-    </div>
-    <div class="product-info">
-      <div class="product-brand">${p.brand}</div>
-      <div class="product-name">${p.name}</div>
-      ${p.desc ? `<div class="product-desc-preview">${p.desc}</div>` : '<div class="product-desc-preview"></div>'}
-      <div class="product-price-row">
-        <div class="product-price"><span>¥</span>${p.price}</div>
+  return `
+    <div class="product-card" onclick="openProductModal(${p.id})">
+      <div class="product-img-wrap">
+        <img src="${encodeURI(p.image)}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="product-img-placeholder" style="display:none;">🛍️</div>
+        ${p.isHot ? '<div class="product-tag">🔥爆款</div>' : ''}
       </div>
-      ${qty > 0
-        ? `<div class="qty-control" onclick="event.stopPropagation()">
-            <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
-            <div class="qty-num">${qty}</div>
-            <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
-          </div>`
-        : `<button class="add-to-cart-btn" onclick="quickAdd(event,${p.id})">🛒 加入购物车</button>`
-      }
-    </div>
-  </div>`;
-}
-
-function getCategoryEmoji(cat) {
-  if (cat.includes("护理")) return "🌿";
-  if (cat.includes("零食")) return "🍪";
-  if (cat.includes("辅食")) return "🥣";
-  if (cat.includes("夏日")) return "☀️";
-  if (cat.includes("玩具")) return "🧸";
-  if (cat.includes("用品")) return "🍼";
-  if (cat.includes("保健")) return "💊";
-  if (cat.includes("成人")) return "✨";
-  return "🛍️";
-}
-
-// ===================== QUICK ADD =====================
-function quickAdd(event, id) {
-  event.stopPropagation();
-  const p = PRODUCTS.find(x=>x.id===id);
-  if (!cart[id]) cart[id] = { ...p, qty: 0 };
-  cart[id].qty += 1;
-  updateCartBadge();
-  renderMain();
-  showToast(`已加入购物车 🛒`);
-}
-
-function changeQty(id, delta) {
-  if (!cart[id]) return;
-  cart[id].qty = Math.max(0, cart[id].qty + delta);
-  if (cart[id].qty === 0) delete cart[id];
-  updateCartBadge();
-  renderMain();
-}
-
-// ===================== PRODUCT MODAL =====================
-function openProduct(id) {
-  modalProduct = PRODUCTS.find(p=>p.id===id);
-  modalQty = 1;
-  document.getElementById("modalCategory").textContent = modalProduct.category;
-  document.getElementById("modalName").textContent = modalProduct.name;
-  document.getElementById("modalPrice").innerHTML = `<span>¥</span>${modalProduct.price}`;
-  const desc = modalProduct.desc || "";
-  const descEl = document.getElementById("modalDesc");
-  if (desc) {
-    descEl.textContent = desc;
-    descEl.classList.remove("empty");
-  } else {
-    descEl.textContent = "产品介绍即将更新，如需了解详情请咨询客服～";
-    descEl.classList.add("empty");
-  }
-  const img = document.getElementById("modalImg");
-  const ph = document.getElementById("modalImgPlaceholder");
-  img.src = encodeURI(modalProduct.image);
-  img.style.display = "block";
-  ph.style.display = "none";
-  ph.textContent = getCategoryEmoji(modalProduct.category);
-  document.getElementById("modalQtyNum").textContent = 1;
-  document.getElementById("productModal").classList.add("show");
-  document.body.style.overflow = "hidden";
-}
-
-function closeModal(e) {
-  if (e.target === document.getElementById("productModal")) closeProductModal();
-}
-
-function closeProductModal() {
-  document.getElementById("productModal").classList.remove("show");
-  document.body.style.overflow = "";
-}
-
-function changeModalQty(delta) {
-  modalQty = Math.max(1, modalQty + delta);
-  document.getElementById("modalQtyNum").textContent = modalQty;
-}
-
-function addFromModal() {
-  if (!modalProduct) return;
-  const id = modalProduct.id;
-  if (!cart[id]) cart[id] = { ...modalProduct, qty: 0 };
-  cart[id].qty += modalQty;
-  updateCartBadge();
-  renderMain();
-  closeProductModal();
-  showToast(`已加入 ${modalQty} 件 🛒`);
-}
-
-// ===================== CART =====================
-function openCart() {
-  document.getElementById("cartOverlay").classList.add("show");
-  document.getElementById("cartDrawer").classList.add("open");
-  document.body.style.overflow = "hidden";
-  renderCart();
-}
-
-function closeCart() {
-  document.getElementById("cartOverlay").classList.remove("show");
-  document.getElementById("cartDrawer").classList.remove("open");
-  document.body.style.overflow = "";
-}
-
-function renderCart() {
-  const items = Object.values(cart);
-  const itemsEl = document.getElementById("cartItems");
-  const footerEl = document.getElementById("cartFooter");
-
-  if (items.length === 0) {
-    itemsEl.innerHTML = `<div class="cart-empty">
-      <div class="cart-empty-icon">🛍️</div>
-      <div>购物车空空的</div>
-      <div style="font-size:13px;margin-top:6px;">快去挑选宝贝喜欢的商品吧~</div>
-    </div>`;
-    footerEl.style.display = "none";
-    return;
-  }
-
-  itemsEl.innerHTML = items.map(item => `
-    <div class="cart-item">
-      <img class="cart-item-img" src="${encodeURI(item.image)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-      <div class="cart-item-img-placeholder" style="display:none;">${getCategoryEmoji(item.category)}</div>
-      <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-category">${item.category}</div>
-        <div class="cart-item-price-row">
-          <div class="cart-item-price">¥${item.price}</div>
-          <div class="cart-item-qty">
-            <button class="ci-qty-btn" onclick="cartChangeQty(${item.id},-1)">−</button>
-            <div class="ci-qty-num">${item.qty}</div>
-            <button class="ci-qty-btn" onclick="cartChangeQty(${item.id},1)">+</button>
-          </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-price-row">
+          <div class="product-price">¥${p.price}<span>/件</span></div>
+          <button class="add-to-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+</button>
         </div>
       </div>
     </div>
-  `).join('');
-
-  const total = items.reduce((s,i)=>s+i.price*i.qty, 0);
-  const totalQty = items.reduce((s,i)=>s+i.qty, 0);
-  document.getElementById("cartTotal").textContent = `¥${total}`;
-  document.getElementById("cartItemCount").textContent = `共 ${items.length} 种商品，合计 ${totalQty} 件`;
-  footerEl.style.display = "block";
+  `;
 }
 
-function cartChangeQty(id, delta) {
+// ===================== PRODUCT MODAL =====================
+function openProductModal(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  modalProduct = p;
+  modalQty = 1;
+  const modal = document.getElementById("productModal");
+  const content = document.getElementById("modalContent");
+  content.innerHTML = `
+    <button class="modal-close" onclick="closeProductModal()">✕</button>
+    <div class="modal-img-wrap">
+      <img src="${encodeURI(p.image)}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <div class="product-img-placeholder" style="display:none;">🛍️</div>
+    </div>
+    <div class="modal-name">${p.name}</div>
+    <div class="modal-brand">${p.brand}</div>
+    <div class="modal-price">¥${p.price}</div>
+    ${p.desc ? `<div class="modal-desc">${p.desc}</div>` : ''}
+    <div class="modal-qty-row">
+      <button class="qty-btn" onclick="updateModalQty(-1)">−</button>
+      <span class="qty-display" id="modalQty">1</span>
+      <button class="qty-btn" onclick="updateModalQty(1)">+</button>
+    </div>
+    <button class="modal-add-btn" onclick="addToCartFromModal()">🛒 加入购物车</button>
+  `;
+  modal.classList.add("show");
+}
+function closeProductModal() { document.getElementById("productModal").classList.remove("show"); }
+function updateModalQty(delta) { modalQty = Math.max(1, modalQty + delta); document.getElementById("modalQty").textContent = modalQty; }
+function addToCartFromModal() { if (!modalProduct) return; addToCart(modalProduct.id, modalQty); closeProductModal(); }
+
+// ===================== CART =====================
+function addToCart(id, qty) {
+  if (cart[id]) cart[id] += qty; else cart[id] = qty;
+  saveCart();
+  updateCartBadge();
+  if (currentTab === "cart") renderCartPage();
+}
+function removeFromCart(id) {
+  delete cart[id]; saveCart(); updateCartBadge();
+  if (currentTab === "cart") renderCartPage();
+}
+function updateCartQty(id, delta) {
   if (!cart[id]) return;
-  cart[id].qty = Math.max(0, cart[id].qty + delta);
-  if (cart[id].qty === 0) delete cart[id];
-  updateCartBadge();
-  renderCart();
-  renderMain();
+  cart[id] = Math.max(0, cart[id] + delta);
+  if (cart[id] === 0) delete cart[id];
+  saveCart(); updateCartBadge();
+  if (currentTab === "cart") renderCartPage();
 }
-
-function clearCart() {
-  if (!confirm("确定要清空购物车吗？")) return;
-  cart = {};
-  updateCartBadge();
-  renderCart();
-  renderMain();
-}
-
 function updateCartBadge() {
-  const total = Object.values(cart).reduce((s,i)=>s+i.qty, 0);
-  const badge = document.getElementById("cartBadge");
+  const total = Object.values(cart).reduce((a,b) => a+b, 0);
+  const badge = document.getElementById("tabCartBadge");
   badge.textContent = total;
   badge.classList.toggle("show", total > 0);
 }
 
-// ===================== CHECKOUT =====================
-function openCheckout() {
-  const items = Object.values(cart);
-  if (items.length === 0) return;
-
-  const listEl = document.getElementById("checkoutOrderList");
-  listEl.innerHTML = items.map(item => `
-    <div class="checkout-order-item">
-      <span class="co-name">${item.name}</span>
-      <span class="co-qty">×${item.qty}</span>
-      <span class="co-price">¥${item.price * item.qty}</span>
-    </div>
-  `).join('');
-
-  const total = items.reduce((s,i)=>s+i.price*i.qty, 0);
-  document.getElementById("checkoutTotal").textContent = `¥${total}`;
-
-  closeCart();
-  document.getElementById("checkoutOverlay").classList.add("show");
-  document.body.style.overflow = "hidden";
-}
-
-function closeCheckout() {
-  document.getElementById("checkoutOverlay").classList.remove("show");
-  document.body.style.overflow = "";
-}
-
-// ===================== SUBMIT ORDER =====================
-async function submitOrder() {
-  const name = document.getElementById("buyerName").value.trim();
-  const phone = document.getElementById("buyerPhone").value.trim();
-  const address = document.getElementById("buyerAddress").value.trim();
-  const note = document.getElementById("buyerNote").value.trim();
-
-  if (!name) { showToast("请填写收件人姓名"); return; }
-  if (!phone || !/^1[3-9]\d{9}$/.test(phone)) { showToast("请填写正确的手机号码"); return; }
-  if (!address) { showToast("请填写收货地址"); return; }
-
-  const items = Object.values(cart);
-  const total = items.reduce((s,i)=>s+i.price*i.qty, 0);
-  const orderNo = "DD" + Date.now();
-  const orderTime = new Date().toLocaleString("zh-CN");
-
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.textContent = "提交中...";
-
-  // 构建订单数据
-  const orderData = {
-    orderNo, orderTime, name, phone, address, note,
-    items: items.map(i=>({ name:i.name, brand:i.brand, category:i.category, price:i.price, qty:i.qty, subtotal:i.price*i.qty })),
-    total,
-  };
-
-  // 推送到 Supabase 云数据库（直接 fetch，无需 SDK）
-  let cloudOk = false;
-  try {
-    const itemsJson = JSON.stringify(orderData.items);
-    const resp = await fetch(CONFIG.SUPABASE_URL + "/rest/v1/orders", {
-      method: "POST",
-      headers: {
-        "apikey": CONFIG.SUPABASE_KEY,
-        "Authorization": "Bearer " + CONFIG.SUPABASE_KEY,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify([{
-        order_no: orderNo,
-        customer_name: name,
-        phone: phone,
-        address: address,
-        items: itemsJson,
-        total_amount: total,
-        remark: note,
-        status: "待处理"
-      }])
-    });
-    if (resp.ok) { cloudOk = true; }
-    else { console.warn("Supabase 提交失败:", await resp.text()); }
-  } catch(e) { console.warn("Supabase 提交异常:", e); }
-
-  // 无论云端是否成功，都本地存储订单（兜底）
-  saveOrderLocally(orderData);
-
-  btn.disabled = false;
-  btn.textContent = "提交订单 🎉";
-
-  closeCheckout();
-  cart = {};
-  updateCartBadge();
-  renderMain();
-
-  // 根据云端是否成功显示不同提示
-  if (cloudOk) {
-    showToast("✅ 订单已提交成功！");
-  } else {
-    showToast("⚠️ 订单已记录，网络同步中...");
+function renderCartPage() {
+  const page = document.getElementById("cartPage");
+  const items = Object.entries(cart);
+  if (items.length === 0) {
+    page.innerHTML = `<div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <div>购物车是空的</div>
+      <button class="btn-primary" style="margin-top:20px;max-width:200px;" onclick="switchTab('home')">去逛逛</button>
+    </div>`;
+    const oldFooter = document.getElementById("cartFooter");
+    if (oldFooter) oldFooter.style.display = "none";
+    return;
   }
 
+  let html = "";
+  let total = 0;
+  items.forEach(([id, qty]) => {
+    const p = PRODUCTS.find(x => x.id == id);
+    if (!p) return;
+    total += p.price * qty;
+    html += `
+      <div class="cart-item">
+        <img class="cart-item-img" src="${encodeURI(p.image)}" alt="${p.name}" onerror="this.style.display='none'" />
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-price">¥${p.price}</div>
+          <div class="cart-item-qty">
+            <button onclick="updateCartQty(${id},-1)">−</button>
+            <span>${qty}</span>
+            <button onclick="updateCartQty(${id},1)">+</button>
+          </div>
+          <button class="cart-item-remove" onclick="removeFromCart(${id})">删除</button>
+        </div>
+      </div>
+    `;
+  });
+
+  page.innerHTML = html;
+
+  let footer = document.getElementById("cartFooter");
+  if (!footer) {
+    footer = document.createElement("div");
+    footer.id = "cartFooter";
+    footer.className = "cart-footer";
+    document.getElementById("tab-cart").appendChild(footer);
+  }
+  footer.innerHTML = `
+    <div>
+      <span style="font-size:13px;color:var(--text-muted);">合计 </span>
+      <span class="cart-total-val">¥${total}</span>
+    </div>
+    <button class="cart-checkout-btn" onclick="openCheckout()">去结算</button>
+  `;
+  footer.style.display = "flex";
+}
+
+// ===================== CHECKOUT =====================
+function openCheckout() {
+  const items = Object.entries(cart);
+  if (items.length === 0) return;
+
+  let total = 0;
+  let orderHtml = "";
+  items.forEach(([id, qty]) => {
+    const p = PRODUCTS.find(x => x.id == id);
+    if (!p) return;
+    total += p.price * qty;
+    orderHtml += `<div class="checkout-order-item"><span>${p.name} x${qty}</span><span>¥${p.price*qty}</span></div>`;
+  });
+
+  document.getElementById("checkoutOrderList").innerHTML = orderHtml;
+  document.getElementById("checkoutTotal").textContent = `¥${total}`;
+
+  const addrSection = document.getElementById("checkoutAddressSection");
+  const defaultAddr = addresses.find(a => a.id === defaultAddressId);
+  if (defaultAddr) {
+    addrSection.innerHTML = `
+      <div class="profile-card" style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">📍 收货地址</div>
+        <div class="address-item active" style="margin-bottom:0;">
+          <div class="addr-name">${defaultAddr.name} <span class="addr-default-tag">默认</span></div>
+          <div class="addr-phone">${defaultAddr.phone}</div>
+          <div class="addr-detail">${defaultAddr.detail}</div>
+        </div>
+      </div>
+    `;
+    document.getElementById("checkoutForm").innerHTML = `
+      <div class="form-group">
+        <label>备注（选填）</label>
+        <input type="text" id="buyerNote" placeholder="如有特殊要求可在此说明" />
+      </div>
+    `;
+  } else {
+    addrSection.innerHTML = "";
+    document.getElementById("checkoutForm").innerHTML = `
+      <div class="form-group">
+        <label>收件人姓名 <span>*</span></label>
+        <input type="text" id="buyerName" placeholder="请输入真实姓名" />
+      </div>
+      <div class="form-group">
+        <label>联系电话 <span>*</span></label>
+        <input type="tel" id="buyerPhone" placeholder="请输入手机号码" />
+      </div>
+      <div class="form-group">
+        <label>收货地址 <span>*</span></label>
+        <textarea id="buyerAddress" placeholder="省/市/区 + 详细地址" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>备注（选填）</label>
+        <input type="text" id="buyerNote" placeholder="如有特殊要求可在此说明" />
+      </div>
+    `;
+  }
+
+  document.getElementById("checkoutOverlay").classList.add("show");
+}
+
+function closeCheckout() { document.getElementById("checkoutOverlay").classList.remove("show"); }
+
+function submitOrder() {
+  const defaultAddr = addresses.find(a => a.id === defaultAddressId);
+  let name, phone, address;
+
+  if (defaultAddr) {
+    name = defaultAddr.name;
+    phone = defaultAddr.phone;
+    address = defaultAddr.detail;
+  } else {
+    name = document.getElementById("buyerName").value.trim();
+    phone = document.getElementById("buyerPhone").value.trim();
+    address = document.getElementById("buyerAddress").value.trim();
+  }
+  const note = document.getElementById("buyerNote")?.value.trim() || "";
+
+  if (!name || !phone || !address) {
+    alert("请填写完整的收件信息！");
+    return;
+  }
+
+  const items = Object.entries(cart).map(([id, qty]) => {
+    const p = PRODUCTS.find(x => x.id == id);
+    return { id, name: p?.name || "", price: p?.price || 0, qty };
+  });
+  const order = { name, phone, address, note, items, time: new Date().toISOString() };
+
+  let orders = [];
+  try { orders = JSON.parse(localStorage.getItem("hahapu_orders") || "[]"); } catch(e) {}
+  orders.push(order);
+  localStorage.setItem("hahapu_orders", JSON.stringify(orders));
+
+  closeCheckout();
   document.getElementById("successOverlay").classList.add("show");
-  document.body.style.overflow = "hidden";
+  cart = {};
+  saveCart();
+  updateCartBadge();
+  renderCartPage();
 }
 
-// ===================== 腾讯文档推送 =====================
-// 📌 此功能需要配合腾讯文档 API 使用
-// 由于腾讯文档 API 需要后端服务支持，这里提供数据格式供对接使用
-async function pushToTencentDoc(orderData) {
-  // 如果有配置后端接口，在此调用
-  // const res = await fetch("/api/submit-order", { method:"POST", body:JSON.stringify(orderData), headers:{"Content-Type":"application/json"} });
-  // return res.ok;
-  console.log("📋 订单数据（可配置推送到腾讯文档）:", JSON.stringify(orderData, null, 2));
-  return false;
-}
+function closeSuccess() { document.getElementById("successOverlay").classList.remove("show"); }
 
-// ===================== 本地存储订单 =====================
-function saveOrderLocally(orderData) {
-  try {
-    const orders = JSON.parse(localStorage.getItem("shop_orders") || "[]");
-    orders.unshift(orderData);
-    localStorage.setItem("shop_orders", JSON.stringify(orders.slice(0, 200)));
-  } catch(e) {}
-}
+// ===================== PROFILE / ADDRESS =====================
+function renderProfile() {
+  const page = document.getElementById("profilePage");
+  let html = "";
 
-function closeSuccess() {
-  document.getElementById("successOverlay").classList.remove("show");
-  document.body.style.overflow = "";
-  document.getElementById("buyerName").value = "";
-  document.getElementById("buyerPhone").value = "";
-  document.getElementById("buyerAddress").value = "";
-  document.getElementById("buyerNote").value = "";
-}
+  html += `
+    <div class="profile-card">
+      <h3>📍 收货地址</h3>
+      ${addresses.length === 0 ? '<p style="font-size:13px;color:var(--text-muted);">暂无保存的地址，请添加</p>' : ''}
+  `;
+  addresses.forEach(addr => {
+    html += `
+      <div class="address-item${addr.id===defaultAddressId?' active':''}" onclick="selectDefaultAddress('${addr.id}')">
+        <div class="addr-name">${addr.name} ${addr.id===defaultAddressId?'<span class="addr-default-tag">默认</span>':''}</div>
+        <div class="addr-phone">${addr.phone}</div>
+        <div class="addr-detail">${addr.detail}</div>
+        <div style="margin-top:8px;display:flex;gap:8px;">
+          <button onclick="event.stopPropagation();editAddress('${addr.id}')" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;">编辑</button>
+          <button onclick="event.stopPropagation();deleteAddress('${addr.id}')" style="font-size:12px;padding:4px 10px;border:1px solid #ff3b30;border-radius:6px;background:white;color:#ff3b30;cursor:pointer;">删除</button>
+        </div>
+      </div>
+    `;
+  });
+  html += `<button class="btn-primary" onclick="openAddressModal()">+ 添加新地址</button></div>`;
 
-// ===================== ABOUT =====================
-function renderAbout() {
-  return `<div class="section active">
-    <div class="about-card">
+  html += `
+    <div class="profile-card">
       <h3>💬 关于我们</h3>
-      <p>专注母婴好物代购，严选原装进口商品，品质保障，让每一位宝宝都能用上最好的产品。</p>
+      <p style="font-size:13px;line-height:1.8;color:var(--text);">
+        HahaPu 宝贝优选专注于为全球家庭提供优质、安全的母婴用品代购服务。<br>
+        所有商品均从品牌官方渠道采购，确保正品品质。
+      </p>
+      <p style="font-size:13px;margin-top:10px;color:var(--text-muted);">
+        📱 微信客服：HahaPu客服<br>
+        📧 邮箱：service@hahapu.com
+      </p>
     </div>
-    <div class="about-card">
-      <h3>🛒 如何下单</h3>
-      <ul>
-        <li>浏览商品，点击「加入购物车」</li>
-        <li>在购物车中确认数量</li>
-        <li>点击「去结单」填写收件信息</li>
-        <li>提交后等待客服联系确认</li>
-        <li>确认后付款，发货后提供物流单号</li>
-      </ul>
-    </div>
-    <div class="about-card">
-      <h3>📦 发货说明</h3>
-      <ul>
-        <li>商品均为正品保障，提供购买凭证</li>
-        <li>下单后1-3个工作日内安排发货</li>
-        <li>偏远地区可能需要额外时间</li>
-        <li>如有质量问题7天内联系退换</li>
-      </ul>
-    </div>
-    <div class="about-card">
-      <h3>💡 注意事项</h3>
-      <ul>
-        <li>价格为代购价，含代购服务费</li>
-        <li>库存有限，下单后以实际有货为准</li>
-        <li>如遇商品缺货客服会第一时间通知</li>
-        <li>长按商品图片可保存图片</li>
-      </ul>
-    </div>
-  </div>`;
+  `;
+
+  page.innerHTML = html;
 }
 
-// ===================== TOAST =====================
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 2000);
+function selectDefaultAddress(id) {
+  defaultAddressId = id;
+  saveAddresses();
+  renderProfile();
 }
 
-// ===================== START =====================
-init();
+function openAddressModal(addrId) {
+  editingAddressId = addrId || null;
+  if (addrId) {
+    const addr = addresses.find(a => a.id === addrId);
+    if (addr) {
+      document.getElementById("addrName").value = addr.name;
+      document.getElementById("addrPhone").value = addr.phone;
+      document.getElementById("addrDetail").value = addr.detail;
+    }
+  } else {
+    document.getElementById("addrName").value = "";
+    document.getElementById("addrPhone").value = "";
+    document.getElementById("addrDetail").value = "";
+  }
+  document.getElementById("addressOverlay").classList.add("show");
+}
+
+function closeAddressModal() { document.getElementById("addressOverlay").classList.remove("show"); }
+
+function saveAddress() {
+  const name = document.getElementById("addrName").value.trim();
+  const phone = document.getElementById("addrPhone").value.trim();
+  const detail = document.getElementById("addrDetail").value.trim();
+  if (!name || !phone || !detail) {
+    alert("请填写完整信息！");
+    return;
+  }
+  if (editingAddressId) {
+    const idx = addresses.findIndex(a => a.id === editingAddressId);
+    if (idx >= 0) addresses[idx] = { id: editingAddressId, name, phone, detail };
+  } else {
+    const id = "addr_" + Date.now();
+    addresses.push({ id, name, phone, detail });
+    if (!defaultAddressId) defaultAddressId = id;
+  }
+  saveAddresses();
+  closeAddressModal();
+  renderProfile();
+}
+
+function editAddress(id) { openAddressModal(id); }
+function deleteAddress(id) {
+  if (!confirm("确定删除此地址？")) return;
+  addresses = addresses.filter(a => a.id !== id);
+  if (defaultAddressId === id) defaultAddressId = addresses[0]?.id || null;
+  saveAddresses();
+  renderProfile();
+}
+
+// ===================== INIT =====================
+document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
