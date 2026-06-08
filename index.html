@@ -1485,9 +1485,9 @@ function submitOrder() {
   const order = { name, phone, address, note, items, time: new Date().toISOString() };
 
   let orders = [];
-  try { orders = JSON.parse(localStorage.getItem("hahapu_orders") || "[]"); } catch(e) {}
+  try { orders = JSON.parse(localStorage.getItem("shop_orders") || "[]"); } catch(e) {}
   orders.push(order);
-  localStorage.setItem("hahapu_orders", JSON.stringify(orders));
+  localStorage.setItem("shop_orders", JSON.stringify(orders));
 
   closeCheckout();
   document.getElementById("successOverlay").classList.add("show");
