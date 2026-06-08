@@ -303,6 +303,33 @@
     }
     .brand-chip.more-btn.open { border-style: solid; }
 
+    /* ===== HOT PRODUCTS ===== */
+    .hot-section {
+      margin-bottom: 20px;
+    }
+    .hot-products-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-light) transparent;
+    }
+    .hot-products-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .hot-products-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .hot-products-scroll::-webkit-scrollbar-thumb {
+      background: var(--primary-light);
+      border-radius: 3px;
+    }
+    .hot-products-scroll .product-card {
+      min-width: 180px;
+      max-width: 180px;
+    }
+
     /* ===== PRODUCT GRID ===== */
     .product-grid {
       display: grid;
@@ -1182,8 +1209,8 @@
 // 图片放在对应类别文件夹中，文件名与 image 字段对应（支持 .jpg/.JPG/.png）
 // desc 字段：填写产品介绍；空字符串则显示"暂无介绍"
 PRODUCTS = [
-  { id:1, category:"宝宝辅食", name:"Bebefood婴儿酱油", price:56, brand:"Bebefood", image:"宝宝辅食/Bebefood婴儿酱油.jpg", desc:"" },
-  { id:2, category:"宝宝辅食", name:"Bebefood天然调味海盐", price:68, brand:"Bebefood", image:"宝宝辅食/Bebefood天然调味海盐.jpg", desc:"" },
+  { id:1, category:"宝宝辅食", name:"Bebefood婴儿酱油", price:56, brand:"Bebefood", image:"宝宝辅食/Bebefood婴儿酱油.jpg", desc:"" , isHot:true},
+  { id:2, category:"宝宝辅食", name:"Bebefood天然调味海盐", price:68, brand:"Bebefood", image:"宝宝辅食/Bebefood天然调味海盐.jpg", desc:"" , isHot:true},
   { id:3, category:"宝宝辅食", name:"小皮米粉", price:45, brand:"小皮", image:"宝宝辅食/小皮米粉.jpg", desc:"" },
   { id:4, category:"宝宝辅食", name:"宝宝百味有机胚芽米", price:58, brand:"宝宝百味", image:"宝宝辅食/宝宝百味有机胚芽米.jpg", desc:"" },
   { id:5, category:"宝宝辅食", name:"edisonmama乌冬面（蔬菜味）", price:39, brand:"edisonmama乌冬面（蔬菜味）", image:"宝宝辅食/edisonmama乌冬面（蔬菜味）.jpg", desc:"" },
@@ -1243,9 +1270,9 @@ PRODUCTS = [
   { id:59, category:"宝宝辅食", name:"宝宝百味即食粥唧唧装4袋（红菜头小米）", price:85, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥唧唧装4袋（红菜头小米）.jpg", desc:"" },
   { id:60, category:"宝宝辅食", name:"宝宝百味即食粥唧唧装4袋（苹果提子）", price:85, brand:"宝宝百味", image:"宝宝辅食/宝宝百味即食粥唧唧装4袋（苹果提子）.jpg", desc:"" },
   { id:61, category:"宝宝辅食", name:"HiPP有机婴儿纯米糊", price:58, brand:"HiPP", image:"宝宝辅食/HiPP有机婴儿纯米糊.jpg", desc:"" },
-  { id:62, category:"宝宝护理", name:"丝塔芙大白罐 宝宝版", price:149, brand:"丝塔芙", image:"宝宝护理/丝塔芙大白罐 宝宝版.jpg", desc:"" },
-  { id:63, category:"宝宝护理", name:"丝塔芙婴儿湿疹版润肤霜", price:219, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿湿疹版润肤霜.jpg", desc:"" },
-  { id:64, category:"宝宝护理", name:"尚护健通鼻贴", price:45, brand:"尚护健", image:"宝宝护理/尚护健通鼻贴.jpg", desc:"" },
+  { id:62, category:"宝宝护理", name:"丝塔芙大白罐 宝宝版", price:149, brand:"丝塔芙", image:"宝宝护理/丝塔芙大白罐 宝宝版.jpg", desc:"" , isHot:true},
+  { id:63, category:"宝宝护理", name:"丝塔芙婴儿湿疹版润肤霜", price:219, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿湿疹版润肤霜.jpg", desc:"" , isHot:true},
+  { id:64, category:"宝宝护理", name:"尚护健通鼻贴", price:45, brand:"尚护健", image:"宝宝护理/尚护健通鼻贴.jpg", desc:"" , isHot:true},
   { id:65, category:"宝宝护理", name:"尚护健通鼻贴升级版", price:49, brand:"尚护健", image:"宝宝护理/尚护健通鼻贴升级版.jpg", desc:"" },
   { id:66, category:"宝宝护理", name:"丝塔芙婴幼儿保湿低敏防晒乳", price:129, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴幼儿保湿低敏防晒乳.jpg", desc:"" },
   { id:67, category:"宝宝护理", name:"珮夫人通鼻贴 7片", price:45, brand:"珮夫人", image:"宝宝护理/珮夫人通鼻贴 7片.jpg", desc:"" },
@@ -1270,13 +1297,13 @@ PRODUCTS = [
   { id:86, category:"宝宝护理", name:"妙思乐冷霜滋养身体乳", price:140, brand:"妙思乐", image:"宝宝护理/妙思乐冷霜滋养身体乳.jpg", desc:"" },
   { id:87, category:"宝宝护理", name:"丝塔芙婴儿套装（400ml乳液+洗发沐浴50ml）", price:119, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿套装（400ml乳液+洗发沐浴50ml）.jpg", desc:"" },
   { id:88, category:"宝宝护理", name:"丝塔芙婴儿套装（400ml洗发沐浴+乳液50ml）", price:119, brand:"丝塔芙", image:"宝宝护理/丝塔芙婴儿套装（400ml洗发沐浴+乳液50ml）.jpg", desc:"" },
-  { id:89, category:"宝宝零食", name:"Bebefood宝宝海苔", price:32, brand:"Bebefood", image:"宝宝零食/Bebefood宝宝海苔.jpg", desc:"" },
-  { id:90, category:"宝宝零食", name:"renewallife有机苹果米饼", price:32, brand:"renewallife", image:"宝宝零食/renewallife有机苹果米饼.jpg", desc:"" },
+  { id:89, category:"宝宝零食", name:"Bebefood宝宝海苔", price:32, brand:"Bebefood", image:"宝宝零食/Bebefood宝宝海苔.jpg", desc:"" , isHot:true},
+  { id:90, category:"宝宝零食", name:"renewallife有机苹果米饼", price:32, brand:"renewallife", image:"宝宝零食/renewallife有机苹果米饼.jpg", desc:"" , isHot:true},
   { id:91, category:"宝宝零食", name:"宝宝百味有机波波米（芝士味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（芝士味）.jpg", desc:"" },
   { id:92, category:"宝宝零食", name:"宝宝百味有机波波米（草莓味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（草莓味）.jpg", desc:"" },
   { id:93, category:"宝宝零食", name:"宝宝百味有机波波米（蓝莓味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（蓝莓味）.jpg", desc:"" },
   { id:94, category:"宝宝零食", name:"宝宝百味有机波波米（香蕉味）", price:35, brand:"宝宝百味", image:"宝宝零食/宝宝百味有机波波米（香蕉味）.jpg", desc:"" },
-  { id:95, category:"宝宝零食", name:"ILDONG香蕉磨牙棒", price:36, brand:"ILDONG", image:"宝宝零食/ILDONG香蕉磨牙棒.jpg", desc:"" },
+  { id:95, category:"宝宝零食", name:"ILDONG香蕉磨牙棒", price:36, brand:"ILDONG", image:"宝宝零食/ILDONG香蕉磨牙棒.jpg", desc:"" , isHot:true},
   { id:96, category:"宝宝零食", name:"Bebefood米饼（红薯味）", price:48, brand:"Bebefood", image:"宝宝零食/Bebefood米饼（红薯味）.jpg", desc:"" },
   { id:97, category:"宝宝零食", name:"Bebefood米饼（苹果味）", price:48, brand:"Bebefood", image:"宝宝零食/Bebefood米饼（苹果味）.jpg", desc:"" },
   { id:98, category:"宝宝零食", name:"renewallife米饼南瓜味", price:32, brand:"renewallife", image:"宝宝零食/renewallife米饼南瓜味.jpg", desc:"" },
@@ -1390,13 +1417,13 @@ PRODUCTS = [
   { id:206, category:"夏日必备", name:"无比滴宝宝版", price:45, brand:"无比滴", image:"夏日必备/无比滴宝宝版.jpg", desc:"" },
   { id:207, category:"夏日必备", name:"日本叮叮 驱蚊贴", price:38, brand:"日本叮叮", image:"夏日必备/日本叮叮 驱蚊贴.jpg", desc:"" },
   { id:208, category:"夏日必备", name:"欧护防蚊喷雾儿童版59ml", price:45, brand:"欧护", image:"夏日必备/欧护防蚊喷雾儿童版59ml.jpg", desc:"" },
-  { id:209, category:"夏日必备", name:"欧护防蚊喷雾儿童版177ml", price:58, brand:"欧护", image:"夏日必备/欧护防蚊喷雾儿童版177ml.jpg", desc:"" },
+  { id:209, category:"夏日必备", name:"欧护防蚊喷雾儿童版177ml", price:58, brand:"欧护", image:"夏日必备/欧护防蚊喷雾儿童版177ml.jpg", desc:"" , isHot:true},
   { id:210, category:"夏日必备", name:"欧护防蚊喷雾成人版177ml", price:69, brand:"欧护", image:"夏日必备/欧护防蚊喷雾成人版177ml.jpg", desc:"" },
-  { id:211, category:"夏日必备", name:"eco.babe有机防蚊驱蚊喷雾225ml", price:219, brand:"eco.babe", image:"夏日必备/eco.babe有机防蚊驱蚊喷雾225ml.jpg", desc:"" },
+  { id:211, category:"夏日必备", name:"eco.babe有机防蚊驱蚊喷雾225ml", price:219, brand:"eco.babe", image:"夏日必备/eco.babe有机防蚊驱蚊喷雾225ml.jpg", desc:"" , isHot:true},
   { id:212, category:"夏日必备", name:"贝亲桃子水", price:39, brand:"贝亲", image:"夏日必备/贝亲桃子水.jpg", desc:"" },
   { id:213, category:"夏日必备", name:"妥析呼吸道10合1流感检测试剂盒", price:72, brand:"妥析", image:"夏日必备/妥析呼吸道10合1流感检测试剂盒.jpg", desc:"" },
   { id:214, category:"夏日必备", name:"妥析呼吸道6合1流感测试剂盒（儿童专用）", price:65, brand:"妥析", image:"夏日必备/妥析呼吸道6合1流感测试剂盒（儿童专用）.jpg", desc:"" },
-  { id:215, category:"夏日必备", name:"VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）", price:58, brand:"VAPE", image:"夏日必备/VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）.jpg", desc:"" },
+  { id:215, category:"夏日必备", name:"VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）", price:58, brand:"VAPE", image:"夏日必备/VAPE 天使金装婴儿驱蚊喷雾（大容量 200ml）.jpg", desc:"" , isHot:true},
   { id:216, category:"夏日必备", name:"VAPE 天使宝宝驱蚊喷雾（60ml）", price:56, brand:"VAPE", image:"夏日必备/VAPE 天使宝宝驱蚊喷雾（60ml）.jpg", desc:"" },
   { id:217, category:"夏日必备", name:"KINCHO 金鸟儿童驱蚊喷雾（无香款 200ml）", price:49, brand:"KINCHO", image:"夏日必备/KINCHO 金鸟儿童驱蚊喷雾（无香款 200ml）.jpg", desc:"" },
   { id:218, category:"夏日必备", name:"VAPE 绿色经典驱蚊喷雾", price:35, brand:"VAPE", image:"夏日必备/VAPE 绿色经典驱蚊喷雾.jpg", desc:"" },
@@ -1424,7 +1451,6 @@ const CATEGORIES = [
   { key:"宝宝护理", label:"宝宝护理", icon:"🌿" },
   { key:"宝宝零食", label:"宝宝零食", icon:"🍪" },
   { key:"宝宝辅食", label:"宝宝辅食", icon:"🥣" },
-  { key:"宝宝辅食·農純郷", label:"農純郷专区", icon:"🍚" },
   { key:"宝宝玩具", label:"宝宝玩具", icon:"🧸" },
   { key:"宝宝用品", label:"宝宝用品", icon:"🍼" },
   { key:"保健类", label:"保健类", icon:"💊" },
@@ -1448,7 +1474,7 @@ function init() {
 
 // ===================== NAV TABS =====================
 // 主行固定展示的分类 key（按顺序）
-const MAIN_CATS = ["all", "宝宝辅食·農純郷", "宝宝护理", "宝宝辅食", "宝宝零食"];
+const MAIN_CATS = ["all", "宝宝辅食", "宝宝护理", "宝宝零食", "保健类"];
 
 let navExpanded = false;
 
@@ -1540,20 +1566,43 @@ function renderMain() {
 
   const catInfo = CATEGORIES.find(c => c.key === currentCategory) || CATEGORIES[0];
 
-  main.innerHTML = `
-    <div class="section active">
-      <div class="section-header">
-        <span class="section-icon">${catInfo.icon}</span>
-        <span class="section-title">${catInfo.label}</span>
-        <span class="section-desc">共 ${products.length} 件商品</span>
+  // 爆款推荐商品
+  const hotProducts = PRODUCTS.filter(p => p.isHot);
+
+  let html = `<div class="section active">`;
+
+  // 如果是全部商品且没有搜索，显示爆款推荐
+  if (currentCategory === "all" && !searchKeyword) {
+    html += `
+      <div class="hot-section">
+        <div class="section-header">
+          <span class="section-icon">🔥</span>
+          <span class="section-title">爆款推荐</span>
+          <span class="section-desc">最受欢迎的热销商品</span>
+        </div>
+        <div class="hot-products-scroll">
+          ${hotProducts.map(p => renderProductCard(p)).join('')}
+        </div>
       </div>
-      ${brands.length > 1 ? renderBrandFilter(brands) : ''}
-      ${products.length === 0
-        ? `<div class="no-results">🔍 没有找到相关商品</div>`
-        : `<div class="product-grid">${products.map(p => renderProductCard(p)).join('')}</div>`
-      }
+      <div style="margin: 24px 0; border-top: 1px solid var(--border);"></div>
+    `;
+  }
+
+  html += `
+    <div class="section-header">
+      <span class="section-icon">${catInfo.icon}</span>
+      <span class="section-title">${catInfo.label}</span>
+      <span class="section-desc">共 ${products.length} 件商品</span>
     </div>
+    ${brands.length > 1 ? renderBrandFilter(brands) : ''}
+    ${products.length === 0
+      ? `<div class="no-results">🔍 没有找到相关商品</div>`
+      : `<div class="product-grid">${products.map(p => renderProductCard(p)).join('')}</div>`
+    }
   `;
+
+  html += `</div>`;
+  main.innerHTML = html;
 }
 
 // ===================== BRAND FILTER =====================
