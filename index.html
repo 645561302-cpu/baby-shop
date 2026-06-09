@@ -527,17 +527,23 @@ body {
 .modal-close {
   position: absolute;
   top: 14px; right: 14px;
-  background: rgba(0,0,0,0.05);
+  background: rgba(0,0,0,0.15);
   border: none;
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 700;
   cursor: pointer;
-  color: var(--text-muted);
-  width: 32px; height: 32px;
+  color: #fff;
+  width: 36px; height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s;
 }
+.modal-close:hover { background: rgba(0,0,0,0.35); }
 .modal-img-wrap {
   width: 100%;
   padding-top: 80%;
@@ -763,13 +769,13 @@ body {
 </div>
 
 <!-- PRODUCT MODAL -->
-<div class="modal-overlay" id="productModal">
-  <div class="modal" id="modalContent"></div>
+<div class="modal-overlay" id="productModal" onclick="closeProductModal()">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()"></div>
 </div>
 
 <!-- CHECKOUT MODAL -->
-<div class="checkout-overlay" id="checkoutOverlay">
-  <div class="checkout-modal">
+<div class="checkout-overlay" id="checkoutOverlay" onclick="closeCheckout()">
+  <div class="checkout-modal" onclick="event.stopPropagation()">
     <div class="checkout-modal-header">
       <h3>📋 确认订单</h3>
       <p>请填写收件信息，我们会及时联系您</p>
@@ -1366,8 +1372,28 @@ function openProductModal(id) {
     <button class="modal-add-btn" onclick="addToCartFromModal()">🛒 加入购物车</button>
   `;
   modal.classList.add("show");
+  // 推入历史记录，这样用户按返回键会关闭弹窗而不是退出页面
+  history.pushState({modal: true}, '');
 }
-function closeProductModal() { document.getElementById("productModal").classList.remove("show"); }
+
+let _modalPopping = false;
+function closeProductModal() {
+  document.getElementById("productModal").classList.remove("show");
+  // 如果是因为浏览器返回键触发的popstate，不需要再back
+  if (!_modalPopping && history.state && history.state.modal) {
+    history.back();
+  }
+}
+
+// 监听浏览器返回键：如果弹窗开着，关闭弹窗而不是退出页面
+window.addEventListener('popstate', function(e) {
+  const modal = document.getElementById("productModal");
+  if (modal.classList.contains("show")) {
+    _modalPopping = true;
+    closeProductModal();
+    _modalPopping = false;
+  }
+});
 function updateModalQty(delta) { modalQty = Math.max(1, modalQty + delta); document.getElementById("modalQty").textContent = modalQty; }
 function addToCartFromModal() { if (!modalProduct) return; addToCart(modalProduct.id, modalQty); closeProductModal(); }
 
