@@ -1195,22 +1195,11 @@ function renderCategoryContent() {
   if (brands.length > 1) {
     html += `<div class="cat-brand-row">`;
     html += `<button class="brand-chip${currentBrandFilter==='all'?' active':''}" onclick="switchBrand('all')">全部</button>`;
-    const mainBrands = brands.filter(b => PRIORITY_BRANDS.includes(b));
-    const restBrands = brands.filter(b => !PRIORITY_BRANDS.includes(b));
-    mainBrands.forEach(b => {
+    // 分类页面品牌全部显示，不折叠（每个分类品牌数量不多）
+    brands.forEach(b => {
       html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="switchBrand('${b}')">${b}</button>`;
     });
-    if (restBrands.length > 0) {
-      html += `<button class="brand-chip more-btn${brandExpanded?' open':''}" onclick="toggleBrandExpand()">更多 ▾</button>`;
-    }
     html += `</div>`;
-    if (brandExpanded && restBrands.length > 0) {
-      html += `<div class="brand-filter-scroll" style="margin-bottom:10px;">`;
-      restBrands.forEach(b => {
-        html += `<button class="brand-chip${currentBrandFilter===b?' active':''}" onclick="switchBrand('${b}')">${b}</button>`;
-      });
-      html += `</div>`;
-    }
   }
 
   html += products.length === 0
