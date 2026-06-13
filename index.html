@@ -1632,7 +1632,7 @@ function openCheckout() {
 
 function closeCheckout() { document.getElementById("checkoutOverlay").classList.remove("show"); }
 
-function submitOrder() {
+async function submitOrder() {
   const defaultAddr = addresses.find(a => a.id === defaultAddressId);
   let name, phone, address;
 
@@ -1654,21 +1654,65 @@ function submitOrder() {
 
   const items = Object.entries(cart).map(([id, qty]) => {
     const p = PRODUCTS.find(x => x.id == id);
-    return { id, name: p?.name || "", price: p?.price || 0, qty };
+    return {
+      id: Number(id),
+      name: p?.name || "",
+      brand: p?.brand || "",
+      category: p?.category || "",
+      price: p?.price || 0,
+      qty: qty,
+      subtotal: (p?.price || 0) * qty
+    };
   });
-  const order = { name, phone, address, note, items, time: new Date().toISOString() };
+  const total = items.reduce((s, i) => s + i.subtotal, 0);
+  const orderNo = "ORD" + Date.now();
+  const now = new Date().toISOString();
 
-  let orders = [];
-  try { orders = JSON.parse(localStorage.getItem("shop_orders") || "[]"); } catch(e) {}
-  orders.push(order);
-  localStorage.setItem("shop_orders", JSON.stringify(orders));
-
+  // ① 先关弹窗、清购物车，让用户感受到"提交成功"
   closeCheckout();
   document.getElementById("successOverlay").classList.add("show");
   cart = {};
   saveCart();
   updateCartBadge();
   renderCartPage();
+
+  // ② 上传到 Supabase（异步，不阻塞 UI）
+  const payload = {
+    order_no: orderNo,
+    customer_name: name,
+    phone: phone,
+    address: address,
+    remark: note,
+    items: JSON.stringify(items),
+    total_amount: total,
+    status: "待处理",
+    created_at: now
+  };
+  try {
+    const resp = await fetch(CONFIG.SUPABASE_URL + "/rest/v1/orders", {
+      method: "POST",
+      headers: {
+        "apikey": CONFIG.SUPABASE_KEY,
+        "Authorization": "Bearer " + CONFIG.SUPABASE_KEY,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.warn("Supabase 订单上传失败:", resp.status, errText);
+    }
+  } catch(e) {
+    console.warn("Supabase 上传异常:", e);
+  }
+
+  // ③ 本地 localStorage 兜底保存
+  const localOrder = { orderNo, name, phone, address, note, items, total, status: "待处理", orderTime: new Date(now).toLocaleString("zh-CN") };
+  let orders = [];
+  try { orders = JSON.parse(localStorage.getItem("shop_orders") || "[]"); } catch(e) {}
+  orders.push(localOrder);
+  localStorage.setItem("shop_orders", JSON.stringify(orders));
 }
 
 function closeSuccess() { document.getElementById("successOverlay").classList.remove("show"); }
