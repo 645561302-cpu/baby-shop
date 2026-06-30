@@ -1,10 +1,10 @@
 name: Supabase Keep Alive
 
-# 每周一和周四 UTC 9:00（北京时间17:00）自动执行
+# 每天 UTC 9:00（北京时间17:00）自动执行
 # 确保免费版 Supabase 不会因7天无活动而暂停
 on:
   schedule:
-    - cron: '0 9 * * 1,4'
+    - cron: '0 9 * * *'
   workflow_dispatch: # 支持手动触发
 
 jobs:
@@ -19,19 +19,8 @@ jobs:
           echo "=== Supabase Keep Alive Ping ==="
           echo "Time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           
-          # 1) 先对 orders 表执行一次查询（读操作）
-          echo "--- Step 1: SELECT from orders ---"
-          SELECT_RESP=$(curl -s -w "\n%{http_code}" \
-            -X GET "${SUPABASE_URL}/rest/v1/orders?select=id&limit=1" \
-            -H "apikey: ${SUPABASE_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_KEY}")
-          SELECT_CODE=$(echo "$SELECT_RESP" | tail -1)
-          SELECT_BODY=$(echo "$SELECT_RESP" | head -n -1)
-          echo "Status: $SELECT_CODE"
-          echo "Response: $SELECT_BODY"
-          
-          # 2) 向 keep_alive 表插入一条记录（写操作，更可靠）
-          echo "--- Step 2: INSERT into keep_alive ---"
+          # 向 keep_alive 表插入一条记录（写操作，Supabase只算写操作为活动）
+          echo "--- INSERT into keep_alive ---"
           RANDOM_STR=$(openssl rand -hex 8)
           INSERT_RESP=$(curl -s -w "\n%{http_code}" \
             -X POST "${SUPABASE_URL}/rest/v1/keep_alive" \
@@ -42,12 +31,12 @@ jobs:
             -d "{\"name\":\"github-action-ping\",\"random\":\"${RANDOM_STR}\"}")
           INSERT_CODE=$(echo "$INSERT_RESP" | tail -1)
           INSERT_BODY=$(echo "$INSERT_RESP" | head -n -1)
-          echo "Status: $INSERT_CODE"
-          echo "Response: $INSERT_BODY"
+          echo "INSERT Status: $INSERT_CODE"
+          echo "INSERT Response: $INSERT_BODY"
           
-          # 3) 如果插入成功，清理该记录（保持表干净）
+          # 如果插入成功，清理该记录（保持表干净）
           if [ "$INSERT_CODE" = "201" ]; then
-            echo "--- Step 3: DELETE the test row ---"
+            echo "--- DELETE the test row ---"
             ROW_ID=$(echo "$INSERT_BODY" | grep -o '"id":[0-9]*' | head -1 | grep -o '[0-9]*')
             if [ -n "$ROW_ID" ]; then
               DELETE_RESP=$(curl -s -w "\n%{http_code}" \
@@ -55,17 +44,15 @@ jobs:
                 -H "apikey: ${SUPABASE_KEY}" \
                 -H "Authorization: Bearer ${SUPABASE_KEY}")
               DELETE_CODE=$(echo "$DELETE_RESP" | tail -1)
-              echo "Delete Status: $DELETE_CODE"
+              echo "DELETE Status: $DELETE_CODE"
             fi
-          fi
-          
-          # 4) 判断总体是否成功
-          if [ "$SELECT_CODE" = "200" ] || [ "$INSERT_CODE" = "201" ]; then
             echo ""
             echo "=== ✅ Keep-alive ping SUCCESS ==="
           else
             echo ""
             echo "=== ❌ Keep-alive ping FAILED ==="
-            echo "SELECT status: $SELECT_CODE, INSERT status: $INSERT_CODE"
+            echo "INSERT status: $INSERT_CODE"
+            echo "如果INSERT返回401/403，请检查keep_alive表的RLS设置"
+            echo "解决方法：在Supabase SQL Editor执行 ALTER TABLE keep_alive DISABLE ROW LEVEL SECURITY;"
             exit 1
           fi
